@@ -1,0 +1,72 @@
+.page { display: flex; flex-direction: column; gap: 16px; }
+.breadcrumb { font-size: 11px; font-weight: 600; color: #9ca3af; letter-spacing: 0.06em; }
+
+.header { display: flex; justify-content: space-between; align-items: flex-start; }
+.title { font-size: 22px; font-weight: 900; color: #e63946; letter-spacing: 0.02em; }
+.sub { font-size: 12px; color: #9ca3af; max-width: 500px; margin-top: 4px; }
+
+.headerStats { display: flex; gap: 8px; }
+.statPill {
+  background: #1a3a8f; color: #fff;
+  border-radius: 8px; padding: 10px 18px; text-align: center; min-width: 80px;
+}
+.statPillRed { background: #e63946; }
+.statPillLabel { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; }
+.statPillNum { font-size: 22px; font-weight: 800; }
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.section {
+  background: #fff; border-radius: 12px; padding: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.sectionHeader { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: #374151; margin-bottom: 2px; text-transform: uppercase; }
+.sectionSub { font-size: 11px; color: #9ca3af; margin-bottom: 14px; }
+
+.fieldGroup { display: flex; flex-direction: column; gap: 10px; }
+.rowFields { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.label { font-size: 10.5px; font-weight: 700; color: #6b7280; letter-spacing: 0.04em; }
+
+.input {
+  padding: 8px 10px; border: 1.5px solid #e5e7eb; border-radius: 7px;
+  font-size: 13px; color: #1a1a2e; outline: none; transition: border-color 0.18s;
+  background: #fff; width: 100%;
+}
+.input:focus { border-color: #1a3a8f; }
+
+.textarea { min-height: 80px; resize: vertical; }
+
+.codeRow { display: flex; gap: 6px; }
+.getBtn {
+  background: #2cb67d; color: #fff;
+  border: none; border-radius: 7px;
+  padding: 0 14px; font-size: 12px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+}
+
+.formFooter {
+  display: flex; justify-content: flex-end; gap: 10px;
+  background: #fff; padding: 14px 20px; border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+
+.resetBtn {
+  padding: 10px 20px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 13px; font-weight: 700; color: #374151; cursor: pointer;
+  background: #fff; transition: border-color 0.15s;
+}
+.resetBtn:hover { border-color: #9ca3af; }
+
+.submitBtn {
+  padding: 10px 22px; background: #1a3a8f; color: #fff;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.18s;
+}
+.submitBtn:hover { background: #0f2460; }

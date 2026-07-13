@@ -1,0 +1,83 @@
+.page {
+  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Main Grid */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 280px 1fr 200px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Columns */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.centerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .rightCol {
+    grid-column: span 2;
+    flex-direction: row;
+  }
+  .rightCol > div {
+    flex: 1;
+  }
+}
+
+/* Phone */
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+  .rightCol {
+    grid-column: span 1;
+    flex-direction: row;
+  }
+  .rightCol > div {
+    flex: 1;
+  }
+}
+
+@media (max-width: 400px) {
+  .rightCol {
+    flex-direction: column;
+  }
+}
+
+/* Print */
+@media print {
+  .page { padding: 0; }
+}

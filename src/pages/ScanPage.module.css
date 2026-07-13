@@ -1,0 +1,143 @@
+.page {
+  min-height: 100vh;
+  background: #1a3a8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #111;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.logoV {
+  background: #e63946;
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.logoVenol { color: #fff; font-weight: 800; font-size: 14px; letter-spacing: 2px; }
+.logoMotor { color: #9ca3af; font-size: 9px; letter-spacing: 1px; }
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+.sub {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+/* Clock */
+.clock {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1a3a8f;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+.date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+/* Form */
+.form { display: flex; flex-direction: column; gap: 12px; }
+.label { font-size: 13px; font-weight: 600; color: #1a1a2e; text-align: left; }
+.input {
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: #1a1a2e;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .2s;
+  letter-spacing: 2px;
+}
+.input:focus { border-color: #1a3a8f; }
+
+.error {
+  background: #fee2e2;
+  color: #e63946;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.submitBtn {
+  background: #1a3a8f;
+  color: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: .2s;
+  margin-top: 4px;
+}
+.submitBtn:hover { background: #2a52c9; }
+.submitBtn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Result */
+.result {
+  border-radius: 14px;
+  padding: 24px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 2;
+}
+.resultIn  { background: #f0fdf4; border: 2px solid #2cb67d; }
+.resultOut { background: #eff6ff; border: 2px solid #1a3a8f; }
+
+.resultIcon { font-size: 36px; margin-bottom: 4px; }
+.resultTitle { font-size: 18px; font-weight: 800; color: #1a1a2e; margin-bottom: 8px; }
+.resultName { font-size: 15px; font-weight: 600; color: #1a3a8f; margin-bottom: 4px; }
+
+.backBtn {
+  margin-top: 16px;
+  background: #f4f6fb;
+  color: #1a3a8f;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.backBtn:hover { background: #e5e7eb; }

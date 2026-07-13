@@ -1,0 +1,178 @@
+.sidebar {
+  position: fixed;        /* overlay លើ content */
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: #1a3a8f;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* លាក់ — រុញទៅឆ្វេង */
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+}
+
+/* បើក — រុញចូលមក */
+.sidebar.open {
+  transform: translateX(0);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Close button */
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 1;
+}
+.closeBtn:hover { background: rgba(255,255,255,0.28); }
+
+/* Brand */
+.brand {
+  padding: 16px 14px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-right: 44px; /* avoid close btn */
+}
+
+.logoBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #111;
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 10px;
+}
+
+.logoV {
+  background: #e63946;
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.logoVenol { color: #fff; font-weight: 800; font-size: 13px; letter-spacing: 2px; line-height: 1.1; }
+.logoMotor { color: #9ca3af; font-size: 8px; letter-spacing: 1px; }
+
+.companyName {
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Nav */
+.nav {
+  flex: 1;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.18s;
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.navItem:hover  { background: rgba(255,255,255,0.12); color: #fff; }
+.navItem.active { background: rgba(255,255,255,0.20); color: #fff; font-weight: 700; }
+
+.navIcon  { font-size: 15px; flex-shrink: 0; }
+.navLabel { flex: 1; }
+.chevron  { font-size: 11px; opacity: 0.7; }
+
+/* Sub menu */
+.subMenu {
+  margin-left: 10px;
+  padding-left: 14px;
+  border-left: 1.5px solid rgba(255,255,255,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 4px;
+}
+
+.subItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.subItem:hover    { color: #fff; background: rgba(255,255,255,0.10); }
+.subItem.subActive{ color: #fff; background: rgba(255,255,255,0.18); font-weight: 600; }
+.subDot { font-size: 13px; opacity: 0.6; }
+
+/* Bottom */
+.bottom {
+  padding: 10px 8px 14px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bottomItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: rgba(255,255,255,0.65);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.roleBadge{
+  text-align: center;
+  color: #fff;
+}
+.bottomItem:hover { background: rgba(255,255,255,0.10); color: #fff; }
+
+.logout       { color: #fca5a5; }
+.logout:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
