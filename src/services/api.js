@@ -2,7 +2,7 @@
 
 // ប្រើប្រាស់ Environment Variable ពី Render, បើអត់មានទើបប្រើ URL លេខ ២
 // កែ file src/services/api.js ត្រង់បន្ទាត់ទី ៤ នេះ៖
-const BASE = "https://my-system-vp4o.onrender.com/api";
+const BASE = import.meta.env.VITE_API_BASE_URL || "https://my-system-vp4o.onrender.com/api";
 
 async function request(method, path, body = null) {
   const options = {
