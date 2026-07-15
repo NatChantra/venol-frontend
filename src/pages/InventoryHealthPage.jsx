@@ -17,7 +17,7 @@ const EMPTY = {
   reorder_list: [],
 };
 
-const BASE_URL = "https://venol-backend.onrender.com";
+const BASE_URL = "https://my-system-vp4o.onrender.com";
 
 export default function InventoryHealthPage() {
   const [data,    setData]    = useState(EMPTY);
