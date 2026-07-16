@@ -7,8 +7,8 @@ const MOCK_USERS = [
   {
     user_id: 1,
     emp_id: 101,
-    username: "admin",
-    password: "69696969",
+    username: "venol",
+    password: "venol",
     role: "Admin",
     // Employee fields
     emp_name: "Admin User",
