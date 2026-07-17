@@ -27,3 +27,38 @@
   transition: background 0.18s; white-space: nowrap;
 }
 .contactBtn:hover { background: #0f2460; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero {
+    padding: 20px 16px;
+  }
+
+  .heroTitle {
+    font-size: 18px;
+  }
+
+  .contactCard {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .contactBtn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroIcon {
+    font-size: 32px;
+  }
+
+  .faqQ {
+    font-size: 13px;
+  }
+
+  .faqA {
+    font-size: 12px;
+  }
+}

@@ -69,3 +69,58 @@
 
 .itemName { font-size: 13px; font-weight: 600; color: #1a1a2e; }
 .itemSku { font-size: 10.5px; color: #9ca3af; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .midRow {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .exportBtn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .statsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trendChart {
+    height: 80px;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+}

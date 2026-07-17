@@ -123,3 +123,70 @@
 }
 .table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
 .table tr:last-child td { border-bottom: none; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 16px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .tab, .tabActive {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .card {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+
+  .historyCard {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .clock {
+    font-size: 26px;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .table th, .table td {
+    padding: 8px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 20px 14px;
+  }
+
+  .historyCard {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 400px;
+  }
+
+  .clock {
+    font-size: 22px;
+  }
+
+  .instruction {
+    font-size: 13px;
+  }
+
+  .scanBtn, .scanBtnOut {
+    padding: 11px 20px;
+    font-size: 14px;
+  }
+}

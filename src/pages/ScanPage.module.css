@@ -141,3 +141,44 @@
   cursor: pointer;
 }
 .backBtn:hover { background: #e5e7eb; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .page {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .clock {
+    font-size: 24px;
+  }
+
+  .input {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .submitBtn {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .resultIcon {
+    font-size: 28px;
+  }
+
+  .resultTitle {
+    font-size: 16px;
+  }
+
+  .resultName {
+    font-size: 13px;
+  }
+}

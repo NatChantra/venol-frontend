@@ -176,3 +176,42 @@
 
 .logout       { color: #fca5a5; }
 .logout:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+/* ===== OVERLAY ===== */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.overlay.show {
+  display: block;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 260px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .navItem {
+    padding: 11px 10px;
+    font-size: 14px;
+  }
+
+  .subItem {
+    font-size: 13px;
+    padding: 9px 8px;
+  }
+}

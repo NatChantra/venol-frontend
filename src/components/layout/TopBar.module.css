@@ -205,3 +205,52 @@
 }
 .menuItem:hover { background: #f9fafb; }
 .logoutItem { color: #e63946; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .userName {
+    display: none;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  .userBtn {
+    padding: 4px;
+    border-radius: 50%;
+    border: none;
+  }
+
+  .dropdown {
+    width: 260px;
+    right: -60px;
+  }
+
+  .pageTitle {
+    font-size: 13px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 0 8px;
+  }
+
+  .dropdown {
+    width: 240px;
+    right: -80px;
+  }
+
+  .pageTitle {
+    max-width: 100px;
+  }
+
+  .iconBtn {
+    width: 32px;
+    height: 32px;
+  }
+}

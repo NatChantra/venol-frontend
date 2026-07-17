@@ -70,3 +70,52 @@
   cursor: pointer; transition: background 0.18s;
 }
 .submitBtn:hover { background: #0f2460; }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .headerStats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formFooter {
+    flex-direction: column;
+  }
+
+  .resetBtn, .submitBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .statPillNum {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .headerStats {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .statPill {
+    min-width: 60px;
+    padding: 8px 12px;
+  }
+
+  .rowFields {
+    grid-template-columns: 1fr;
+  }
+}

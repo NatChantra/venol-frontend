@@ -188,3 +188,42 @@
   padding-top: 10px;
   border-top: 1px solid #f3f4f6;
 }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .card {
+    padding: 24px 16px;
+    margin: 16px;
+    border-radius: 8px;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .logoV {
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .logoVenol {
+    font-size: 13px;
+  }
+
+  .input {
+    font-size: 12px;
+    padding: 8px 10px 8px 30px;
+  }
+
+  .submitBtn {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 28px 20px;
+    margin: 12px;
+  }
+}

@@ -42,3 +42,48 @@
   transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .toggleOn .toggleThumb { transform: translateX(18px); }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
+
+  .saveBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .updatePwBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .profileRow {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .toggleRow {
+    gap: 8px;
+  }
+}
