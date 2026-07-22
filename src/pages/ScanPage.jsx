@@ -6,7 +6,7 @@ import styles from "./ScanPage.module.css";
 // This works whether you open it from localhost, your PC's LAN IP, or a phone.
 const API_DIRECT = window.location.hostname === "localhost"
   ? "http://localhost:8000/api"
-  : `http://${window.location.hostname}:8000/api`;
+  : "https://my-system-vp4o.onrender.com/api";
 
 export default function ScanPage() {
   const [empId,   setEmpId]   = useState("");
