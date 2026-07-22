@@ -10,7 +10,6 @@ const MOCK_USERS = [
     username: "venol",
     password: "venol",
     role: "Admin",
-    // Employee fields
     emp_name: "Admin User",
     position: "Manager",
     phone: "012-345-678",
@@ -38,9 +37,16 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState("");
 
   const login = (username, password) => {
+    // Trim whitespace and make username comparison case-insensitive
+    // (password stays case-sensitive for security)
+    const cleanUsername = username.trim().toLowerCase();
+
     const found = MOCK_USERS.find(
-      (u) => u.username === username && u.password === password
+      (u) =>
+        u.username.trim().toLowerCase() === cleanUsername &&
+        u.password === password
     );
+
     if (found) {
       // Don't store password in state/localStorage
       const safe = { ...found };

@@ -17,8 +17,8 @@ export default function DepartmentPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = depts.filter(d =>
-    d.dept_name.toLowerCase().includes(search.toLowerCase())
+    const filtered = depts.filter(d =>
+    d.dept_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const openAdd  = () => { setForm({ dept_name: "" }); setError(""); setModal("add"); };
