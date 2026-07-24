@@ -101,25 +101,21 @@ export default function InventoryHealthPage() {
       {/* Stat Cards */}
       <div className={styles.statsRow}>
         <StatCard
-          icon="💰"
           label="Total Stock Value"
           value={`$${Number(data.total_stock_value).toLocaleString()}`}
           color="blue"
         />
         <StatCard
-          icon="⚠️"
           label="Low Stock Alerts"
           value={`${data.low_stock_count} Items`}
           color="orange"
         />
         <StatCard
-          icon="⏰"
           label="Average Attendance %"
           value={`${data.avg_attendance}%`}
           color="green"
         />
         <StatCard
-          icon="🕐"
           label="Late Arrivals This Week"
           value={data.late_count}
           color="red"
