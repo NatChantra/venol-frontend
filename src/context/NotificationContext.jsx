@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from "r
 
 const NotificationContext = createContext(null);
 
-const API = "/api";
+const API = "https://my-system-vp4o.onrender.com/api";
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
