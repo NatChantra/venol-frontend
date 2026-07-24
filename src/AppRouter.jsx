@@ -40,7 +40,7 @@ export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={!user ? <LoginPage /> : <Navigate to="/dashboard" />} />
-      <Route path="/scan" element={<ScanPage />} />
+      <Route path="/qr-attendance" element={<ScanPage />} />
       <Route element={<MainLayout />}>
         {/* Staff + Admin */}
         <Route path="/holidays" element={<Protected><HolidayPage /></Protected>} />
