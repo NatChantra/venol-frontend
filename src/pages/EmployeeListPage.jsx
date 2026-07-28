@@ -118,7 +118,7 @@ export default function EmployeeListPage() {
         ) : filtered.map((emp, i) => {
           const isEditing = editId === emp.emp_id;
           return (
-            <div key={emp.emp_id} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
+            <div key={`V${String(emp.emp_id).padStart(3, "0")}`} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
                 {/* Avatar */}
                 <div style={{
