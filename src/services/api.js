@@ -4,7 +4,7 @@
 // កែ file src/services/api.js ត្រង់បន្ទាត់ទី ៤ នេះ៖
 const BASE = import.meta.env.VITE_API_BASE_URL || "https://my-system-vp4o.onrender.com/api";
 
-async function request(method, path, body = null, retries = 8, delayMs = 5000) {
+async function request(method, path, body = null, retries = 5, delayMs = 4000) {
   const options = {
     method,
     mode: 'cors',
@@ -18,19 +18,21 @@ async function request(method, path, body = null, retries = 8, delayMs = 5000) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(`${BASE}${path}`, options);
-      
+
       const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
+      const text = await res.text(); // អានជា text មុន ដើម្បីជៀសវាង error ពេល body ទទេ
+
+      if (!contentType || !contentType.includes("application/json") || !text) {
         throw new Error("NOT_JSON");
       }
 
-      const data = await res.json();
+      const data = JSON.parse(text);
       if (!res.ok) throw new Error(data.message || "API Error");
       return data;
 
     } catch (error) {
       const isLastAttempt = attempt === retries;
-      const isColdStart = error.message === "NOT_JSON" || error.name === "TypeError";
+      const isColdStart = error.message === "NOT_JSON" || error.name === "TypeError" || error instanceof SyntaxError;
 
       if (isColdStart && !isLastAttempt) {
         console.warn(`Server កំពុងភ្ញាក់... សាកល្បងម្តងទៀត (${attempt + 1}/${retries})`);
