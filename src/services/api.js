@@ -4,10 +4,10 @@
 // កែ file src/services/api.js ត្រង់បន្ទាត់ទី ៤ នេះ៖
 const BASE = import.meta.env.VITE_API_BASE_URL || "https://my-system-vp4o.onrender.com/api";
 
-async function request(method, path, body = null) {
+async function request(method, path, body = null, retries = 8, delayMs = 5000) {
   const options = {
     method,
-    mode: 'cors', // អនុញ្ញាតឱ្យតភ្ជាប់ឆ្លង Domain
+    mode: 'cors',
     headers: { 
       "Content-Type": "application/json", 
       "Accept": "application/json" 
@@ -15,17 +15,32 @@ async function request(method, path, body = null) {
   };
   if (body) options.body = JSON.stringify(body);
 
-  try {
-    const res = await fetch(`${BASE}${path}`, options);
-    const data = await res.json();
-    
-    // បើមាន Error ពី Server (ដូចជា 404, 500)
-    if (!res.ok) throw new Error(data.message || "API Error");
-    
-    return data;
-  } catch (error) {
-    console.error("Fetch Error:", error);
-    throw error; // បោះ Error ទៅកន្លែងហៅ (Component) ដើម្បីឱ្យវាបង្ហាញ Error
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${BASE}${path}`, options);
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("NOT_JSON");
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "API Error");
+      return data;
+
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isColdStart = error.message === "NOT_JSON" || error.name === "TypeError";
+
+      if (isColdStart && !isLastAttempt) {
+        console.warn(`Server កំពុងភ្ញាក់... សាកល្បងម្តងទៀត (${attempt + 1}/${retries})`);
+        await new Promise(r => setTimeout(r, delayMs));
+        continue;
+      }
+
+      console.error("Fetch Error:", error);
+      throw error;
+    }
   }
 }
 

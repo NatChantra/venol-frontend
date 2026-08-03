@@ -6,8 +6,9 @@ function getScanUrl() {
   if (window.location.hostname === "localhost") {
     /*return `http://172.20.10.2:5173/scan`;*/
    return `http://192.168.100.232:5173/scan`;
+  /* return `http://192.168.100.67:5173/scan`;*/
   }
-  return `${window.location.origin}/scan`;
+  return `${window.location.origin}/?page=scan`;
 }
 
 export default function AttendancePage() {

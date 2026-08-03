@@ -1,31 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-// Mock data aligned with ER: Employee + User tables
-// Employee: emp_id, emp_name, position, phone
-// User:     user_id, emp_id (FK), username, password, role
-const MOCK_USERS = [
-  {
-    user_id: 1,
-    emp_id: 101,
-    username: "venol",
-    password: "venol",
-    role: "Admin",
-    emp_name: "Admin User",
-    position: "Manager",
-    phone: "012-345-678",
-  },
-  {
-    user_id: 2,
-    emp_id: 102,
-    username: "sokdara",
-    password: "password123",
-    role: "Staff",
-    // Employee fields
-    emp_name: "Sokdara Chan",
-    position: "Sales Staff",
-    phone: "098-765-432",
-  },
-];
+const BASE = "https://my-system-vp4o.onrender.com/api";
 
 const AuthContext = createContext(null);
 
@@ -36,28 +11,33 @@ export function AuthProvider({ children }) {
   });
   const [error, setError] = useState("");
 
-  const login = (username, password) => {
-    // Trim whitespace and make username comparison case-insensitive
-    // (password stays case-sensitive for security)
-    const cleanUsername = username.trim().toLowerCase();
+  const login = async (username, password) => {
+    setError("");
+    try {
+      const res = await fetch(`${BASE}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    const found = MOCK_USERS.find(
-      (u) =>
-        u.username.trim().toLowerCase() === cleanUsername &&
-        u.password === password
-    );
+      const data = await res.json();
 
-    if (found) {
-      // Don't store password in state/localStorage
-      const safe = { ...found };
-      delete safe.password;
-      setUser(safe);
-      localStorage.setItem("venol_user", JSON.stringify(safe));
-      setError("");
+      if (!res.ok) {
+        setError(data.message || "ឈ្មោះអ្នកប្រើ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវ។");
+        return false;
+      }
+
+      setUser(data);
+      localStorage.setItem("venol_user", JSON.stringify(data));
       return true;
+
+    } catch (err) {
+      setError("មិនអាចភ្ជាប់ Server បាន។ សូមព្យាយាមម្តងទៀត!");
+      return false;
     }
-    setError("ឈ្មោះអ្នកប្រើ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវ។");
-    return false;
   };
 
   const logout = () => {

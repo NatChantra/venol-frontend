@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API = window.location.hostname === "localhost"
-  ? "http://localhost:8000/api"
-  : `http://${window.location.hostname}:8000/api`;
+const API = "https://my-system-vp4o.onrender.com/api";
 
 export default function EmployeeListPage() {
   const [employees, setEmployees] = useState([]);
@@ -68,7 +66,7 @@ export default function EmployeeListPage() {
       if (photoFile) fd.append("photo", photoFile);
 
       const res = await fetch(`${API}/employees/${editId}`, {
-        method: "POST", // Laravel reads this as update via route
+        method: "POST",
         headers: { Accept: "application/json" },
         body: fd,
       });
@@ -117,6 +115,7 @@ export default function EmployeeListPage() {
           <div style={{ padding: 40, textAlign: "center", color: "#9ca3af" }}>គ្មានបុគ្គលិក</div>
         ) : filtered.map((emp, i) => {
           const isEditing = editId === emp.emp_id;
+          const empCode = `V${String(emp.emp_id).padStart(3, '0')}`;
           return (
             <div key={emp.emp_id} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
@@ -134,9 +133,13 @@ export default function EmployeeListPage() {
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* V001 format */}
+                  <div style={{ fontSize: 11, color: "#1a3a8f", fontWeight: 700, marginBottom: 2 }}>
+                    {empCode}
+                  </div>
                   <div style={{ fontWeight: 600, fontSize: 14, color: "#1f2937" }}>{emp.emp_name}</div>
                   <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                    {emp.position ?? "—"} · {emp.department ?? "គ្មានផ្នែក"}
+                    {emp.position ?? "—"} · {emp.dept_name ?? "គ្មានផ្នែក"}
                   </div>
                 </div>
 
@@ -156,11 +159,9 @@ export default function EmployeeListPage() {
                 </button>
               </div>
 
-              {/* Inline edit form */}
               {isEditing && (
                 <div style={{ background: "#eff6ff", padding: "16px 20px" }}>
                   <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                    {/* Photo uploader */}
                     <div style={{ textAlign: "center" }}>
                       <div style={{
                         width: 90, height: 90, borderRadius: "50%", overflow: "hidden",
@@ -182,7 +183,6 @@ export default function EmployeeListPage() {
                       </label>
                     </div>
 
-                    {/* Fields */}
                     <div style={{ flex: 1, display: "flex", gap: 12, flexWrap: "wrap" }}>
                       <div style={{ minWidth: 160 }}>
                         <label style={{ fontSize: 11, color: "#6b7280" }}>ឈ្មោះ *</label>
@@ -216,7 +216,6 @@ export default function EmployeeListPage() {
                           style={{ display: "block", width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, boxSizing: "border-box" }}
                         />
                       </div>
-
                       <div style={{ width: "100%", display: "flex", gap: 8, marginTop: 8 }}>
                         <button
                           onClick={handleSave}
