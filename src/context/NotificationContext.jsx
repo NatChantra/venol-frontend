@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from "r
 const NotificationContext = createContext(null);
 
 const API = "https://my-system-vp4o.onrender.com/api";
+<<<<<<< HEAD
 
 // Helper មុខងារសុវត្ថិភាព ដើម្បីទាញ JSON ដោយពិនិត្យ content-type មុន
 async function safeFetchJson(url) {
@@ -19,6 +20,8 @@ async function safeFetchJson(url) {
     return null;
   }
 }
+=======
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);

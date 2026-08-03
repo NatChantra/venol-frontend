@@ -4,11 +4,18 @@ import styles from "./AttendancePage.module.css";
 
 function getScanUrl() {
   if (window.location.hostname === "localhost") {
+<<<<<<< HEAD
     /*return `http://172.20.10.2:5173/scan`;*/
    return `http://192.168.100.232:5173/scan`;
   /* return `http://192.168.100.67:5173/scan`;*/
   }
   return `${window.location.origin}/?page=scan`;
+=======
+    /*return `http://172.20.10.2:5173/qr-attendance`;*/
+   return `http://192.168.100.232:5173/qr-attendance`;
+  }
+  return `${window.location.origin}/qr-attendance`;
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
 }
 
 export default function AttendancePage() {

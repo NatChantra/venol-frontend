@@ -101,25 +101,37 @@ export default function InventoryHealthPage() {
       {/* Stat Cards */}
       <div className={styles.statsRow}>
         <StatCard
+<<<<<<< HEAD
         
+=======
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
           label="Total Stock Value"
           value={`$${Number(data.total_stock_value).toLocaleString()}`}
           color="blue"
         />
         <StatCard
+<<<<<<< HEAD
           
+=======
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
           label="Low Stock Alerts"
           value={`${data.low_stock_count} Items`}
           color="orange"
         />
         <StatCard
+<<<<<<< HEAD
          
+=======
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
           label="Average Attendance %"
           value={`${data.avg_attendance}%`}
           color="green"
         />
         <StatCard
+<<<<<<< HEAD
           
+=======
+>>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
           label="Late Arrivals This Week"
           value={data.late_count}
           color="red"
