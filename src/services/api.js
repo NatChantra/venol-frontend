@@ -44,12 +44,50 @@ async function request(method, path, body = null, retries = 5, delayMs = 4000) {
   }
 }
 
+async function requestForm(path, formData, retries = 5, delayMs = 4000) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${BASE}${path}`, {
+        method: "POST",
+        mode: 'cors',
+        headers: { "Accept": "application/json" },
+        body: formData,
+      });
+
+      const contentType = res.headers.get("content-type");
+      const text = await res.text();
+
+      if (!contentType || !contentType.includes("application/json") || !text) {
+        throw new Error("NOT_JSON");
+      }
+
+      const data = JSON.parse(text);
+      if (!res.ok) throw new Error(data.message || "API Error");
+      return data;
+
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+      const isColdStart = error.message === "NOT_JSON" || error.name === "TypeError" || error instanceof SyntaxError;
+
+      if (isColdStart && !isLastAttempt) {
+        console.warn(`Server កំពុងភ្ញាក់... សាកល្បងម្តងទៀត (${attempt + 1}/${retries})`);
+        await new Promise(r => setTimeout(r, delayMs));
+        continue;
+      }
+
+      console.error("Fetch Error:", error);
+      throw error;
+    }
+  }
+}
+
 // ===== API Modules =====
 
 export const employeeApi = {
   getAll:   ()          => request("GET",    "/employees"),
   create:   (data)      => request("POST",   "/employees", data),
   update:   (id, data)  => request("PUT",    `/employees/${id}`, data),
+  updateForm: (id, formData) => requestForm(`/employees/${id}`, formData),
   delete:   (id)        => request("DELETE", `/employees/${id}`),
 };
 
