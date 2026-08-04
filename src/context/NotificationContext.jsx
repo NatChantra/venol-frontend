@@ -3,14 +3,13 @@ import React, { createContext, useContext, useState, useEffect, useRef } from "r
 const NotificationContext = createContext(null);
 
 const API = "https://my-system-vp4o.onrender.com/api";
-<<<<<<< HEAD
 
 // Helper មុខងារសុវត្ថិភាព ដើម្បីទាញ JSON ដោយពិនិត្យ content-type មុន
 async function safeFetchJson(url) {
   const res = await fetch(url, { headers: { Accept: "application/json" } });
   const contentType = res.headers.get("content-type");
   if (!res.ok || !contentType || !contentType.includes("application/json")) {
-    return null; // server មិនទាន់ត្រៀម ឬ cold start — រំលងជុំនេះ
+    return null;
   }
   const text = await res.text();
   if (!text) return null;
@@ -20,8 +19,6 @@ async function safeFetchJson(url) {
     return null;
   }
 }
-=======
->>>>>>> 99eb83218d613dee0abf685efecfe38f5f616afd
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
