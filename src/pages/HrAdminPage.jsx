@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import { employeeApi, deptApi } from "../services/api";
+import { employeeApi, deptApi, leaveApi } from "../services/api";
 import styles from "./HrAdminPage.module.css";
 
 export default function HrAdminPage() {
-  const [employees,  setEmployees]  = useState([]);
-  const [depts,      setDepts]      = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [search,     setSearch]     = useState("");
-  const [modal,      setModal]      = useState(null); // null | "add" | employee obj
-  const [saving,     setSaving]     = useState(false);
-  const [error,      setError]      = useState("");
+  const [tab,        setTab]       = useState("employees"); // employees | leaves
+  const [employees,  setEmployees] = useState([]);
+  const [depts,      setDepts]     = useState([]);
+  const [leaves,     setLeaves]    = useState([]);
+  const [loading,    setLoading]   = useState(true);
+  const [search,     setSearch]    = useState("");
+  const [modal,      setModal]     = useState(null); // null | "add" | employee obj
+  const [saving,     setSaving]    = useState(false);
+  const [error,      setError]     = useState("");
   const fileRef = useRef();
 
   const [form, setForm] = useState({
-    emp_name: "",   // ✅ fix: emp_name ជំនួស name
+    emp_name: "",
     position: "",
     phone:    "",
     dept_id:  "",
@@ -21,8 +23,12 @@ export default function HrAdminPage() {
   });
 
   useEffect(() => {
-    Promise.all([employeeApi.getAll(), deptApi.getAll()])
-      .then(([emps, dpts]) => { setEmployees(emps); setDepts(dpts); })
+    Promise.all([employeeApi.getAll(), deptApi.getAll(), leaveApi.getAll()])
+      .then(([emps, dpts, lvs]) => {
+        setEmployees(Array.isArray(emps) ? emps : []);
+        setDepts(Array.isArray(dpts) ? dpts : []);
+        setLeaves(Array.isArray(lvs) ? lvs : []);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -56,7 +62,6 @@ export default function HrAdminPage() {
     if (!form.emp_name.trim()) { setError("សូមបញ្ចូលឈ្មោះបុគ្គលិក"); return; }
     setSaving(true); setError("");
     try {
-      // Use FormData for file upload support
       const fd = new FormData();
       fd.append("emp_name", form.emp_name);
       fd.append("position", form.position);
@@ -86,12 +91,17 @@ export default function HrAdminPage() {
     setEmployees(prev => prev.filter(e => e.emp_id !== id));
   };
 
+  const handleLeaveStatus = async (id, status) => {
+    await leaveApi.updateStatus(id, status);
+    setLeaves(prev => prev.map(l => l.leave_id === id ? { ...l, status } : l));
+  };
+
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#9ca3af" }}>កំពុងផ្ទុក...</div>;
 
   return (
     <div className={styles.page}>
 
-      {/* Modal */}
+      {/* Modal (Add/Edit Employee) */}
       {modal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
           <div style={{ background: "#fff", borderRadius: 16, padding: 32, minWidth: 380, maxWidth: 480, width: "90%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
@@ -100,7 +110,6 @@ export default function HrAdminPage() {
             </h3>
             {error && <div style={{ background: "#fee2e2", color: "#e63946", padding: "10px 14px", borderRadius: 8, marginBottom: 14, fontSize: 13 }}>⚠️ {error}</div>}
 
-            {/* ✅ emp_name field */}
             {[
               { key: "emp_name", label: "ឈ្មោះបុគ្គលិក *", placeholder: "ឧ. សុខ វណ្ណ" },
               { key: "position", label: "មុខងារ",           placeholder: "ឧ. Manager, Engineer" },
@@ -117,7 +126,6 @@ export default function HrAdminPage() {
               </div>
             ))}
 
-            {/* Department */}
             <div style={{ marginBottom: 14 }}>
               <label style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", display: "block", marginBottom: 6 }}>ផ្នែកការងារ</label>
               <select
@@ -130,7 +138,6 @@ export default function HrAdminPage() {
               </select>
             </div>
 
-            {/* Photo (edit only) */}
             {modal !== "add" && (
               <div style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", display: "block", marginBottom: 6 }}>រូបភាព</label>
@@ -158,91 +165,155 @@ export default function HrAdminPage() {
           <h2 className={styles.title}>👥 គ្រប់គ្រងបុគ្គលិក</h2>
           <p className={styles.sub}>HR Administration — Employee Management</p>
         </div>
-        <button onClick={openAdd} className={styles.addBtn}>+ បន្ថែមបុគ្គលិក</button>
+        {tab === "employees" && (
+          <button onClick={openAdd} className={styles.addBtn}>+ បន្ថែមបុគ្គលិក</button>
+        )}
       </div>
 
-      {/* Summary */}
-      <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
-          <div className={styles.sumNum} style={{ color: "#1a3a8f" }}>{employees.length}</div>
-          <div className={styles.sumLabel}>បុគ្គលិកសរុប</div>
-        </div>
-        <div className={styles.summaryCard}>
-          <div className={styles.sumNum} style={{ color: "#2cb67d" }}>{depts.length}</div>
-          <div className={styles.sumLabel}>ផ្នែកការងារ</div>
-        </div>
+      {/* Tabs */}
+      <div className={styles.tabs}>
+        <button className={styles.tab + (tab === "employees" ? " " + styles.active : "")} onClick={() => setTab("employees")}>
+          បុគ្គលិក ({employees.length})
+        </button>
+        <button className={styles.tab + (tab === "leaves" ? " " + styles.active : "")} onClick={() => setTab("leaves")}>
+          ច្បាប់ឈប់សម្រាក ({leaves.length})
+        </button>
       </div>
 
-      {/* Search */}
-      <div className={styles.filters}>
-        <div className={styles.searchWrap}>
-          <span className={styles.searchIcon}>🔍</span>
-          <input
-            className={styles.search}
-            placeholder="ស្វែងរកឈ្មោះ ឬ មុខងារ..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+      {/* Summary (Employees tab only) */}
+      {tab === "employees" && (
+        <div className={styles.summaryRow}>
+          <div className={styles.summaryCard}>
+            <div className={styles.sumNum} style={{ color: "#1a3a8f" }}>{employees.length}</div>
+            <div className={styles.sumLabel}>បុគ្គលិកសរុប</div>
+          </div>
+          <div className={styles.summaryCard}>
+            <div className={styles.sumNum} style={{ color: "#2cb67d" }}>{depts.length}</div>
+            <div className={styles.sumLabel}>ផ្នែកការងារ</div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Table */}
-      <div className={styles.tableCard}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead style={{ background: "#f9fafb" }}>
-            <tr style={{ color: "#9ca3af", fontSize: 11, fontWeight: 700, textAlign: "left" }}>
-              <th style={{ padding: "10px 16px" }}>បុគ្គលិក</th>
-              <th style={{ padding: "10px 16px" }}>មុខងារ</th>
-              <th style={{ padding: "10px 16px" }}>ផ្នែក</th>
-              <th style={{ padding: "10px 16px" }}>ទូរស័ព្ទ</th>
-              <th style={{ padding: "10px 16px" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>
-                {employees.length === 0 ? "គ្មានបុគ្គលិក" : "រកមិនឃើញ"}
-              </td></tr>
-            ) : filtered.map((e, i) => (
-              <tr key={e.emp_id} style={{ borderTop: "1px solid #f3f4f6" }}>
-                <td style={{ padding: "10px 16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{
-                      width: 34, height: 34, borderRadius: "50%",
-                      background: e.photo_url ? "transparent" : "#1a3a8f",
-                      overflow: "hidden", flexShrink: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      {e.photo_url
-                        ? <img src={e.photo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{(e.emp_name ?? "?")[0]}</span>
+      {/* Employees Tab */}
+      {tab === "employees" && (
+        <>
+          <div className={styles.filters}>
+            <div className={styles.searchWrap}>
+              <span className={styles.searchIcon}>🔍</span>
+              <input
+                className={styles.search}
+                placeholder="ស្វែងរកឈ្មោះ ឬ មុខងារ..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className={styles.tableCard}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead style={{ background: "#f9fafb" }}>
+                <tr style={{ color: "#9ca3af", fontSize: 11, fontWeight: 700, textAlign: "left" }}>
+                  <th style={{ padding: "10px 16px" }}>បុគ្គលិក</th>
+                  <th style={{ padding: "10px 16px" }}>មុខងារ</th>
+                  <th style={{ padding: "10px 16px" }}>ផ្នែក</th>
+                  <th style={{ padding: "10px 16px" }}>ទូរស័ព្ទ</th>
+                  <th style={{ padding: "10px 16px" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>
+                    {employees.length === 0 ? "គ្មានបុគ្គលិក" : "រកមិនឃើញ"}
+                  </td></tr>
+                ) : filtered.map((e) => (
+                  <tr key={e.emp_id} style={{ borderTop: "1px solid #f3f4f6" }}>
+                    <td style={{ padding: "10px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{
+                          width: 34, height: 34, borderRadius: "50%",
+                          background: e.photo_url ? "transparent" : "#1a3a8f",
+                          overflow: "hidden", flexShrink: 0,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          {e.photo_url
+                            ? <img src={e.photo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            : <span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{(e.emp_name ?? "?")[0]}</span>
+                          }
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 600, color: "#1a1a2e" }}>{e.emp_name}</div>
+                          <div style={{ fontSize: 11, color: "#9ca3af" }}>ID: {e.emp_id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "10px 16px", color: "#6b7280" }}>{e.position ?? "—"}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      {e.dept_name
+                        ? <span style={{ background: "#e0e7ff", color: "#3730a3", padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 700 }}>{e.dept_name}</span>
+                        : <span style={{ color: "#9ca3af" }}>—</span>
                       }
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, color: "#1a1a2e" }}>{e.emp_name}</div>
-                      <div style={{ fontSize: 11, color: "#9ca3af" }}>ID: {e.emp_id}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style={{ padding: "10px 16px", color: "#6b7280" }}>{e.position ?? "—"}</td>
-                <td style={{ padding: "10px 16px" }}>
-                  {e.dept_name
-                    ? <span style={{ background: "#e0e7ff", color: "#3730a3", padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 700 }}>{e.dept_name}</span>
-                    : <span style={{ color: "#9ca3af" }}>—</span>
-                  }
-                </td>
-                <td style={{ padding: "10px 16px", color: "#6b7280" }}>{e.phone ?? "—"}</td>
-                <td style={{ padding: "10px 16px" }}>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => openEdit(e)} style={{ padding: "5px 12px", borderRadius: 6, border: "1.5px solid #e5e7eb", background: "#f9fafb", cursor: "pointer", fontSize: 12 }}>✏️</button>
-                    <button onClick={() => handleDelete(e.emp_id)} style={{ padding: "5px 12px", borderRadius: 6, border: "none", background: "#fee2e2", color: "#e63946", cursor: "pointer", fontSize: 12 }}>🗑️</button>
-                  </div>
-                </td>
+                    </td>
+                    <td style={{ padding: "10px 16px", color: "#6b7280" }}>{e.phone ?? "—"}</td>
+                    <td style={{ padding: "10px 16px" }}>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button onClick={() => openEdit(e)} style={{ padding: "5px 12px", borderRadius: 6, border: "1.5px solid #e5e7eb", background: "#f9fafb", cursor: "pointer", fontSize: 12 }}>✏️</button>
+                        <button onClick={() => handleDelete(e.emp_id)} style={{ padding: "5px 12px", borderRadius: 6, border: "none", background: "#fee2e2", color: "#e63946", cursor: "pointer", fontSize: 12 }}>🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* Leaves Tab */}
+      {tab === "leaves" && (
+        <div className={styles.tableCard}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead style={{ background: "#f9fafb" }}>
+              <tr style={{ color: "#9ca3af", fontSize: 11, fontWeight: 700, textAlign: "left" }}>
+                <th style={{ padding: "10px 16px" }}>បុគ្គលិក</th>
+                <th style={{ padding: "10px 16px" }}>ប្រភេទ</th>
+                <th style={{ padding: "10px 16px" }}>ចាប់ពី</th>
+                <th style={{ padding: "10px 16px" }}>ដល់</th>
+                <th style={{ padding: "10px 16px" }}>ហេតុផល</th>
+                <th style={{ padding: "10px 16px" }}>ស្ថានភាព</th>
+                <th style={{ padding: "10px 16px" }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {leaves.length === 0 ? (
+                <tr><td colSpan={7} style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>គ្មានសំណើច្បាប់</td></tr>
+              ) : leaves.map(lv => (
+                <tr key={lv.leave_id} style={{ borderTop: "1px solid #f3f4f6" }}>
+                  <td style={{ padding: "10px 16px", fontWeight: 600 }}>{lv.emp_name ?? "—"}</td>
+                  <td style={{ padding: "10px 16px" }}>{lv.type_name ?? "—"}</td>
+                  <td style={{ padding: "10px 16px" }}>{lv.start_date}</td>
+                  <td style={{ padding: "10px 16px" }}>{lv.end_date}</td>
+                  <td style={{ padding: "10px 16px", color: "#6b7280" }}>{lv.reason ?? "—"}</td>
+                  <td style={{ padding: "10px 16px" }}>
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700,
+                      background: lv.status === "Approved" ? "#dcfce7" : lv.status === "Rejected" ? "#fee2e2" : "#fef3c7",
+                      color: lv.status === "Approved" ? "#16a34a" : lv.status === "Rejected" ? "#e63946" : "#b45309",
+                    }}>
+                      {lv.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: "10px 16px" }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => handleLeaveStatus(lv.leave_id, "Approved")} style={{ padding: "5px 12px", borderRadius: 6, border: "none", background: "#dcfce7", color: "#16a34a", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>✅ អនុញ្ញាត</button>
+                      <button onClick={() => handleLeaveStatus(lv.leave_id, "Rejected")} style={{ padding: "5px 12px", borderRadius: 6, border: "none", background: "#fee2e2", color: "#e63946", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>❌ បដិសេធ</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

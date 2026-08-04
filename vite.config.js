@@ -9,6 +9,7 @@ export default defineConfig({
       '/api': {
       /*  target: 'http://172.20.10.2:8000',*/
         target: 'http://192.168.100.232:8000',
+      /*   target: 'http://192.168.100.67:8000',*/
         changeOrigin: true,
         secure: false,
       }

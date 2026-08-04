@@ -160,8 +160,19 @@
   cursor: pointer;
   font-size: 13px;
 }
+
 .deleteBtn:hover { background: #fecaca; }
 
+.editBtn {
+  background: #dbeafe;
+  color: #1e40af;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.editBtn:hover { background: #bfdbfe; }
 .approveBtn {
   background: #d1fae5;
   color: #065f46;
