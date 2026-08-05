@@ -69,7 +69,7 @@ export default function InventoryHealthPage() {
       borderRadius: 12,
       margin: 24,
     }}>
-      ⚠️ {error} — សូមពិនិត្យ Laravel log
+      {error} — សូមពិនិត្យ Laravel log
     </div>
   );
 
@@ -261,7 +261,7 @@ export default function InventoryHealthPage() {
                           STATUS_COLOR[r.status] === "red"    ? "#991b1b" :
                           STATUS_COLOR[r.status] === "orange" ? "#9a3412" : "#1e40af",
                       }}>
-                        ⚠ {r.status}
+                         {r.status}
                       </span>
                     </td>
                   </tr>
