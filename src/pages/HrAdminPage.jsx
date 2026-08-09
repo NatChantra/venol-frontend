@@ -283,7 +283,7 @@ export default function HrAdminPage() {
                       </div>
                       <div>
                         <div className={styles.empName}>{e.emp_name}</div>
-                        <div className={styles.empId}>ID: {e.emp_id}</div>
+                        <div className={styles.empId}>V-{String(e.emp_id).padStart(3, "0")}</div>
                       </div>
                     </div>
                   </td>

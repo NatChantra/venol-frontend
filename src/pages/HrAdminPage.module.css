@@ -1,3 +1,47 @@
+/* ===== Page Layout ===== */
+.page {
+  padding: 32px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+.sub {
+  font-size: 13px;
+  color: #9ca3af;
+}
+.addBtn {
+  background: #1a3a8f;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+.addBtn:hover { background: #2a52c9; }
+
+/* ===== Table Card ===== */
+.tableCard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+}
+
 /* ===== Menu Landing ===== */
 .menuWrap {
   padding: 24px;
