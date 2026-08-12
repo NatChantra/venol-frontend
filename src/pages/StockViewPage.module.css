@@ -1,109 +1,130 @@
-.page { display: flex; flex-direction: column; gap: 16px; }
+/* ===== ADDITIONS BELOW — append to your existing StockViewPage.module.css ===== */
 
-.header { display: flex; justify-content: space-between; align-items: flex-end; }
-.title { font-size: 20px; font-weight: 800; color: #1a1a2e; }
-.sub { font-size: 12px; color: #9ca3af; }
-.addBtn {
-  background: #1a3a8f; color: #fff;
-  border: none; border-radius: 8px;
-  padding: 9px 16px; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: background 0.18s;
-}
-.addBtn:hover { background: #0f2460; }
-
-.filters { display: flex; gap: 10px; align-items: center; }
-.searchWrap { position: relative; flex: 1; }
-.searchIcon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.5; }
-.search {
-  width: 100%; padding: 8px 12px 8px 30px;
-  border: 1.5px solid #e5e7eb; border-radius: 8px;
-  font-size: 13px; outline: none; transition: border-color 0.18s;
+/* Category grid card (reuses .grid from above for layout) */
+.catCard {
   background: #fff;
-}
-.search:focus { border-color: #1a3a8f; }
-.filterSel {
-  padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
-  font-size: 12.5px; color: #374151; outline: none; cursor: pointer;
-  background: #fff; white-space: nowrap;
-}
-
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-
-.productCard {
-  background: #fff; border-radius: 12px;
+  border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: box-shadow 0.18s, transform 0.18s;
+  padding: 16px;
   cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s;
+  border: 1.5px solid transparent;
 }
-.productCard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+.catCard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+.catCardEditing { border-color: #1a3a8f; }
 
-.productImg {
-  height: 110px; display: flex; align-items: center; justify-content: center;
-  position: relative;
+.catHeaderRow { display: flex; justify-content: space-between; align-items: flex-start; }
+.catName { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+.catCount { font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
+.catBadges { display: flex; gap: 6px; flex-wrap: wrap; }
+.catActions { display: flex; gap: 4px; }
+
+.badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+.badgeActive   { background: #d1fae5; color: #065f46; }
+.badgeLow      { background: #ffedd5; color: #9a3412; }
+.badgeDepleted { background: #fee2e2; color: #991b1b; }
+.badgeEmpty    { font-size: 10.5px; color: #9ca3af; }
+
+.iconBtn { border: none; background: none; cursor: pointer; font-size: 13px; padding: 3px 5px; border-radius: 5px; }
+.iconBtnEdit:hover   { background: #e0e7ff; }
+.iconBtnDelete:hover { background: #fee2e2; }
+
+/* Category inline edit / new-category form */
+.catEditInput, .newCatInput {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12.5px;
+  margin-bottom: 8px;
+  outline: none;
+  box-sizing: border-box;
 }
-.productEmoji { font-size: 40px; opacity: 0.5; }
-.statusBadge { position: absolute; top: 8px; left: 8px; }
+.catEditInput:focus, .newCatInput:focus { border-color: #1a3a8f; }
 
-.productBody { padding: 12px; }
-.productName { font-size: 13px; font-weight: 700; color: #1a1a2e; line-height: 1.3; margin-bottom: 4px; }
-.productSku { font-size: 10.5px; color: #9ca3af; margin-bottom: 10px; }
-.productFooter { display: flex; justify-content: space-between; align-items: flex-end; }
-.qtyLabel { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; color: #9ca3af; text-transform: uppercase; }
-.qtyVal { font-size: 13px; font-weight: 700; color: #1a1a2e; }
-.editBtn {
-  color: #9ca3af; font-size: 14px; cursor: pointer;
-  background: none; border: none; padding: 4px;
-  border-radius: 5px; transition: color 0.15s;
+.catEditActions, .newCatActions { display: flex; gap: 6px; }
+.btnSave {
+  flex: 1; padding: 7px 0; background: #1a3a8f; color: #fff;
+  border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12px;
 }
-.editBtn:hover { color: #1a3a8f; }
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-
-  .addBtn {
-    width: 100%;
-    text-align: center;
-  }
-
-  .filters {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .filterSel {
-    width: 100%;
-  }
-
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-  }
+.btnCancel {
+  flex: 1; padding: 7px 0; background: #f3f4f6; color: #6b7280;
+  border: none; border-radius: 7px; cursor: pointer; font-size: 12px;
 }
 
-@media (max-width: 480px) {
-  .title {
-    font-size: 18px;
-  }
-
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .productImg {
-    height: 80px;
-  }
-
-  .productEmoji {
-    font-size: 30px;
-  }
-
-  .productName {
-    font-size: 12px;
-  }
+.addCatCard {
+  border: 2px dashed #c7d2fe;
+  border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100px; cursor: pointer; color: #1a3a8f; transition: border-color 0.18s;
 }
+.addCatCard:hover { border-color: #1a3a8f; }
+.addCatPlus { font-size: 24px; line-height: 1; }
+.addCatLabel { font-size: 12px; font-weight: 700; margin-top: 4px; }
+.newCatCard {
+  background: #fff; border-radius: 12px; padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1.5px solid #1a3a8f;
+}
+.newCatTitle { font-size: 12.5px; font-weight: 700; color: #1a3a8f; margin-bottom: 8px; }
+
+/* Category detail header (back button + add item) */
+.detailHeader { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.backBtn { background: none; border: none; cursor: pointer; color: #1a3a8f; font-weight: 700; font-size: 13px; }
+.detailTitle { margin: 0; font-size: 15px; font-weight: 700; color: #1a1a2e; }
+.addItemBtn {
+  margin-left: auto; padding: 8px 14px; background: #1a3a8f; color: #fff;
+  border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12.5px;
+}
+
+/* Product list (rows inside a selected category) */
+.listCard { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+.emptyState { text-align: center; padding: 40px; color: #9ca3af; font-size: 13px; }
+.row { border-top: 1px solid #f3f4f6; }
+.row:first-child { border-top: none; }
+.rowMain { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.itemInfo { flex: 1; min-width: 0; }
+.itemName { font-size: 13px; font-weight: 700; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.itemCategory { font-size: 11px; color: #9ca3af; }
+.qtyBlock { text-align: right; min-width: 80px; }
+.rowActions { display: flex; gap: 4px; }
+.btnIn, .btnOut, .btnEdit, .btnDelete {
+  border: none; border-radius: 6px; cursor: pointer; font-size: 11.5px; font-weight: 700; padding: 6px 9px;
+}
+.btnIn     { background: #d1fae5; color: #065f46; }
+.btnOut    { background: #ffedd5; color: #9a3412; }
+.btnEdit   { background: #e0e7ff; color: #3730a3; font-weight: 400; }
+.btnDelete { background: #fee2e2; color: #e63946; font-weight: 400; }
+
+/* Stock in/out adjust panel */
+.adjustPanel { padding: 12px 14px; }
+.adjustPanelIn  { background: #f0fdf4; }
+.adjustPanelOut { background: #fff7ed; }
+.adjustRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.adjustLabelIn  { font-weight: 700; color: #065f46; font-size: 12.5px; }
+.adjustLabelOut { font-weight: 700; color: #9a3412; font-size: 12.5px; }
+.adjustQtyInput, .adjustNoteInput {
+  padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 7px; font-size: 12.5px; outline: none;
+}
+.adjustQtyInput { width: 90px; }
+.adjustNoteInput { width: 170px; }
+.adjustConfirmIn  { padding: 6px 14px; background: #2cb67d; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
+.adjustConfirmOut { padding: 6px 14px; background: #f4a261; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
+.adjustCancelBtn  { padding: 6px 12px; background: #f3f4f6; color: #6b7280; border: none; border-radius: 7px; cursor: pointer; font-size: 12.5px; }
+
+/* Edit item panel */
+.editPanel { background: #eff6ff; padding: 12px 14px; }
+.editRow { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.editField label { font-size: 10.5px; color: #6b7280; }
+.editField input {
+  display: block; padding: 6px 9px; border: 1.5px solid #e5e7eb; border-radius: 7px;
+  font-size: 12.5px; margin-top: 2px; outline: none;
+}
+.editField input:focus { border-color: #1a3a8f; }
+.editFieldName  input { width: 160px; }
+.editFieldQty   input,
+.editFieldPrice input,
+.editFieldAlert input { width: 75px; }
+.editSaveBtn   { padding: 6px 14px; background: #1a3a8f; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
+.editCancelBtn { padding: 6px 12px; background: #f3f4f6; color: #6b7280; border: none; border-radius: 7px; cursor: pointer; font-size: 12.5px; }
+
+.loading { padding: 40px; text-align: center; color: #9ca3af; font-size: 13px; }

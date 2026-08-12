@@ -7,102 +7,86 @@ const API = window.location.hostname === "localhost"
   ? "http://localhost:8000/api"
   : "https://my-system-vp4o.onrender.com/api";
 
-const STATUS_STYLE = {
-  "Active":    { background: "#d1fae5", color: "#065f46" },
-  "Low Stock": { background: "#ffedd5", color: "#9a3412" },
-  "Depleted":  { background: "#fee2e2", color: "#991b1b" },
-};
-
 function getStatus(stock_qty, low_stock_alert = 20) {
   if (stock_qty <= 0)               return "Depleted";
   if (stock_qty <= low_stock_alert) return "Low Stock";
   return "Active";
 }
 
-// ProductList moved OUTSIDE StockViewPage so it is not re-created on every render
-// (this was causing inputs to lose focus after every keystroke)
+const STATUS_BADGE_CLASS = {
+  "Active":    styles.badgeActive,
+  "Low Stock": styles.badgeLow,
+  "Depleted":  styles.badgeDepleted,
+};
+
+// ProductList is defined OUTSIDE StockViewPage so React does not recreate it
+// on every render (that bug caused inputs to lose focus after every keystroke).
 function ProductList({
   items, editId, editForm, setEditForm, adjustId, adjustType,
   adjustQty, setAdjustQty, adjustNote, setAdjustNote,
   startEdit, handleSaveEdit, setEditId, startAdjust, handleAdjust, setAdjustId, handleDelete,
 }) {
   if (items.length === 0) {
-    return <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>គ្មានទំនិញ</div>;
+    return <div className={styles.emptyState}>គ្មានទំនិញ</div>;
   }
+
   return (
-    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", overflow: "hidden" }}>
-      {items.map((r, i) => {
+    <div className={styles.listCard}>
+      {items.map((r) => {
         const status      = getStatus(r.stock_qty, r.low_stock_alert);
         const isEditing   = editId   === r.res_id;
         const isAdjusting = adjustId === r.res_id;
+
         return (
-          <div key={r.res_id} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px" }}>
-              <div style={{
-                width: 38, height: 38, borderRadius: 8, flexShrink: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: "#1a3a8f", color: "#fff", fontSize: 10, fontWeight: 700,
-              }}>
-                VNL
+          <div key={r.res_id} className={styles.row}>
+            <div className={styles.rowMain}>
+              <div className={styles.avatar}>VNL</div>
+
+              <div className={styles.itemInfo}>
+                <div className={styles.itemName}>{r.res_name}</div>
+                <div className={styles.itemCategory}>▤ {r.category ?? "—"}</div>
               </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 14, color: "#1f2937", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {r.res_name}
-                </div>
-                <div style={{ fontSize: 12, color: "#9ca3af" }}>▤ {r.category ?? "—"}</div>
+              <div className={styles.qtyBlock}>
+                <div className={styles.qtyLabel}>STOCK QTY</div>
+                <div className={styles.qtyValue}>{r.stock_qty} {r.unit ?? ""}</div>
               </div>
 
-              <div style={{ textAlign: "right", minWidth: 90 }}>
-                <div style={{ fontSize: 11, color: "#9ca3af" }}>STOCK QTY</div>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>{r.stock_qty} {r.unit ?? ""}</div>
-              </div>
-
-              <span style={{
-                fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99,
-                whiteSpace: "nowrap", ...STATUS_STYLE[status],
-              }}>
+              <span className={`${styles.statusBadge} ${STATUS_BADGE_CLASS[status]}`}>
                 {status}
               </span>
 
-              <div style={{ display: "flex", gap: 4 }}>
-                <button onClick={() => startAdjust(r, "in")}
-                  style={{ padding: "6px 10px", background: "#d1fae5", color: "#065f46", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-                  +IN
-                </button>
-                <button onClick={() => startAdjust(r, "out")}
-                  style={{ padding: "6px 10px", background: "#ffedd5", color: "#9a3412", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-                  -OUT
-                </button>
-                <button onClick={() => startEdit(r)}
-                  style={{ padding: "6px 10px", background: "#e0e7ff", color: "#3730a3", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                  ✏️
-                </button>
-                <button onClick={() => handleDelete(r.res_id)}
-                  style={{ padding: "6px 10px", background: "#fee2e2", color: "#e63946", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                  🗑️
-                </button>
+              <div className={styles.rowActions}>
+                <button className={styles.btnIn} onClick={() => startAdjust(r, "in")}>+IN</button>
+                <button className={styles.btnOut} onClick={() => startAdjust(r, "out")}>-OUT</button>
+                <button className={styles.btnEdit} onClick={() => startEdit(r)}>✏️</button>
+                <button className={styles.btnDelete} onClick={() => handleDelete(r.res_id)}>🗑️</button>
               </div>
             </div>
 
             {isAdjusting && (
-              <div style={{ background: adjustType === "in" ? "#f0fdf4" : "#fff7ed", padding: "12px 16px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{ fontWeight: 700, color: adjustType === "in" ? "#065f46" : "#9a3412" }}>
+              <div className={`${styles.adjustPanel} ${adjustType === "in" ? styles.adjustPanelIn : styles.adjustPanelOut}`}>
+                <div className={styles.adjustRow}>
+                  <span className={adjustType === "in" ? styles.adjustLabelIn : styles.adjustLabelOut}>
                     {adjustType === "in" ? "Stock In" : "Stock Out"} — {r.res_name}
                   </span>
-                  <input type="number" min="1" placeholder="បរិមាណ" value={adjustQty}
-                    onChange={e => setAdjustQty(e.target.value)}
-                    style={{ width: 100, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} autoFocus />
-                  <input type="text" placeholder="កំណត់ចំណាំ" value={adjustNote}
-                    onChange={e => setAdjustNote(e.target.value)}
-                    style={{ width: 180, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} />
-                  <button onClick={handleAdjust}
-                    style={{ padding: "6px 16px", background: adjustType === "in" ? "#2cb67d" : "#f4a261", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
+                  <input
+                    className={styles.adjustQtyInput}
+                    type="number" min="1" placeholder="បរិមាណ"
+                    value={adjustQty} onChange={e => setAdjustQty(e.target.value)} autoFocus
+                  />
+                  <input
+                    className={styles.adjustNoteInput}
+                    type="text" placeholder="កំណត់ចំណាំ"
+                    value={adjustNote} onChange={e => setAdjustNote(e.target.value)}
+                  />
+                  <button
+                    className={adjustType === "in" ? styles.adjustConfirmIn : styles.adjustConfirmOut}
+                    onClick={handleAdjust}
+                  >
                     {adjustType === "in" ? "បញ្ចូល" : "យកចេញ"}
                   </button>
-                  <button onClick={() => setAdjustId(null)}
-                    style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                  <button className={styles.adjustCancelBtn} onClick={() => setAdjustId(null)}>
                     បោះបង់
                   </button>
                 </div>
@@ -110,36 +94,41 @@ function ProductList({
             )}
 
             {isEditing && (
-              <div style={{ background: "#eff6ff", padding: "12px 16px" }}>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#6b7280" }}>ឈ្មោះ</label>
-                    <input value={editForm.res_name} onChange={e => setEditForm(f => ({ ...f, res_name: e.target.value }))}
-                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 180 }} />
+              <div className={styles.editPanel}>
+                <div className={styles.editRow}>
+                  <div className={styles.editFieldName}>
+                    <label>ឈ្មោះ</label>
+                    <input
+                      value={editForm.res_name}
+                      onChange={e => setEditForm(f => ({ ...f, res_name: e.target.value }))}
+                    />
                   </div>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#6b7280" }}>ស្តុក</label>
-                    <input type="number" value={editForm.stock_qty} onChange={e => setEditForm(f => ({ ...f, stock_qty: e.target.value }))}
-                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  <div className={styles.editFieldQty}>
+                    <label>ស្តុក</label>
+                    <input
+                      type="number"
+                      value={editForm.stock_qty}
+                      onChange={e => setEditForm(f => ({ ...f, stock_qty: e.target.value }))}
+                    />
                   </div>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#6b7280" }}>តម្លៃ ($)</label>
-                    <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
-                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  <div className={styles.editFieldPrice}>
+                    <label>តម្លៃ ($)</label>
+                    <input
+                      type="number"
+                      value={editForm.price}
+                      onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
+                    />
                   </div>
-                  <div>
-                    <label style={{ fontSize: 11, color: "#6b7280" }}>Low Alert</label>
-                    <input type="number" value={editForm.low_stock_alert} onChange={e => setEditForm(f => ({ ...f, low_stock_alert: e.target.value }))}
-                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  <div className={styles.editFieldAlert}>
+                    <label>Low Alert</label>
+                    <input
+                      type="number"
+                      value={editForm.low_stock_alert}
+                      onChange={e => setEditForm(f => ({ ...f, low_stock_alert: e.target.value }))}
+                    />
                   </div>
-                  <button onClick={handleSaveEdit}
-                    style={{ padding: "6px 16px", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
-                    💾 រក្សាទុក
-                  </button>
-                  <button onClick={() => setEditId(null)}
-                    style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
-                    បោះបង់
-                  </button>
+                  <button className={styles.editSaveBtn} onClick={handleSaveEdit}>💾 រក្សាទុក</button>
+                  <button className={styles.editCancelBtn} onClick={() => setEditId(null)}>បោះបង់</button>
                 </div>
               </div>
             )}
@@ -287,9 +276,7 @@ export default function StockViewPage() {
     }
   };
 
-  if (loading) return (
-    <div style={{ padding: 40, textAlign: "center", color: "#9ca3af" }}>កំពុងផ្ទុក...</div>
-  );
+  if (loading) return <div className={styles.loading}>កំពុងផ្ទុក...</div>;
 
   const filteredResources = resources.filter(r => {
     const status = getStatus(r.stock_qty, r.low_stock_alert);
@@ -329,58 +316,65 @@ export default function StockViewPage() {
       </div>
 
       {!selectedCat ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, marginTop: 16 }}>
+        <div className={styles.catGrid}>
           {categories.map(cat => {
             const items     = filteredResources.filter(r => r.category === cat.cat_name);
             const active    = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Active").length;
             const low       = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Low Stock").length;
             const depleted  = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Depleted").length;
+            const isEditingThisCat = editingCatId === cat.cat_id;
+
             return (
-              <div key={cat.cat_id}
-                style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", cursor: "pointer", border: editingCatId === cat.cat_id ? "2px solid #1a3a8f" : "2px solid transparent", transition: "all 0.2s" }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "#1a3a8f"}
-                onMouseLeave={e => { if (editingCatId !== cat.cat_id) e.currentTarget.style.borderColor = "transparent"; }}>
-                {editingCatId === cat.cat_id ? (
+              <div
+                key={cat.cat_id}
+                className={`${styles.catCard} ${isEditingThisCat ? styles.catCardEditing : ""}`}
+              >
+                {isEditingThisCat ? (
                   <div onClick={e => e.stopPropagation()}>
                     <input
                       autoFocus
+                      className={styles.catEditInput}
                       value={editCatName}
                       onChange={e => setEditCatName(e.target.value)}
-                      onKeyDown={e => { if (e.key === "Enter") handleUpdateCategory(cat.cat_id); if (e.key === "Escape") setEditingCatId(null); }}
-                      style={{ width: "100%", padding: "6px 8px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, marginBottom: 8, boxSizing: "border-box" }}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") handleUpdateCategory(cat.cat_id);
+                        if (e.key === "Escape") setEditingCatId(null);
+                      }}
                     />
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <button onClick={() => handleUpdateCategory(cat.cat_id)}
-                        style={{ flex: 1, padding: "6px 0", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12 }}>
+                    <div className={styles.catEditActions}>
+                      <button className={styles.btnSave} onClick={() => handleUpdateCategory(cat.cat_id)}>
                         រក្សាទុក
                       </button>
-                      <button onClick={() => setEditingCatId(null)}
-                        style={{ flex: 1, padding: "6px 0", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
+                      <button className={styles.btnCancel} onClick={() => setEditingCatId(null)}>
                         បោះបង់
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div onClick={() => setSelectedCat(cat.cat_name)}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1a3a8f", marginBottom: 8 }}>{cat.cat_name}</div>
-                      <div style={{ display: "flex", gap: 4 }}>
-                        <button onClick={e => { e.stopPropagation(); setEditingCatId(cat.cat_id); setEditCatName(cat.cat_name); }}
-                          style={{ padding: "3px 6px", background: "#e0e7ff", color: "#3730a3", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>
+                    <div className={styles.catHeaderRow}>
+                      <div className={styles.catName}>{cat.cat_name}</div>
+                      <div className={styles.catActions}>
+                        <button
+                          className={`${styles.iconBtn} ${styles.iconBtnEdit}`}
+                          onClick={e => { e.stopPropagation(); setEditingCatId(cat.cat_id); setEditCatName(cat.cat_name); }}
+                        >
                           ✏️
                         </button>
-                        <button onClick={e => { e.stopPropagation(); handleDeleteCategory(cat.cat_id); }}
-                          style={{ padding: "3px 6px", background: "#fee2e2", color: "#e63946", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>
+                        <button
+                          className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
+                          onClick={e => { e.stopPropagation(); handleDeleteCategory(cat.cat_id); }}
+                        >
                           🗑️
                         </button>
                       </div>
                     </div>
-                    <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 12 }}>{items.length} items</div>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {active   > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#d1fae5", color: "#065f46" }}>{active} Active</span>}
-                      {low      > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#ffedd5", color: "#9a3412" }}>{low} Low</span>}
-                      {depleted > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#fee2e2", color: "#991b1b" }}>{depleted} Depleted</span>}
-                      {items.length === 0 && <span style={{ fontSize: 11, color: "#9ca3af" }}>ទទេ</span>}
+                    <div className={styles.catCount}>{items.length} items</div>
+                    <div className={styles.catBadges}>
+                      {active   > 0 && <span className={`${styles.badge} ${styles.badgeActive}`}>{active} Active</span>}
+                      {low      > 0 && <span className={`${styles.badge} ${styles.badgeLow}`}>{low} Low</span>}
+                      {depleted > 0 && <span className={`${styles.badge} ${styles.badgeDepleted}`}>{depleted} Depleted</span>}
+                      {items.length === 0 && <span className={styles.badgeEmpty}>ទទេ</span>}
                     </div>
                   </div>
                 )}
@@ -389,35 +383,29 @@ export default function StockViewPage() {
           })}
 
           {!addingCat ? (
-            <div onClick={() => setAddingCat(true)}
-              style={{
-                background: "#f8fafc", borderRadius: 12, padding: 20,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", border: "2px dashed #c7d2fe", minHeight: 110, transition: "all 0.2s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = "#1a3a8f"}
-              onMouseLeave={e => e.currentTarget.style.borderColor = "#c7d2fe"}>
-              <div style={{ fontSize: 28, color: "#1a3a8f", lineHeight: 1 }}>+</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1a3a8f", marginTop: 4 }}>បន្ថែម Category</div>
+            <div className={styles.addCatCard} onClick={() => setAddingCat(true)}>
+              <div className={styles.addCatPlus}>+</div>
+              <div className={styles.addCatLabel}>បន្ថែម Category</div>
             </div>
           ) : (
-            <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "2px solid #1a3a8f" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1a3a8f", marginBottom: 8 }}>Category ថ្មី</div>
+            <div className={styles.newCatCard}>
+              <div className={styles.newCatTitle}>Category ថ្មី</div>
               <input
                 autoFocus
+                className={styles.newCatInput}
                 value={newCatName}
                 onChange={e => setNewCatName(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleAddCategory(); if (e.key === "Escape") { setAddingCat(false); setNewCatName(""); } }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleAddCategory();
+                  if (e.key === "Escape") { setAddingCat(false); setNewCatName(""); }
+                }}
                 placeholder="ឧ. ACCESSORIES"
-                style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #d1d5db", fontSize: 13, marginBottom: 10, boxSizing: "border-box" }}
               />
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={handleAddCategory} disabled={savingCat}
-                  style={{ flex: 1, padding: "8px 0", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13 }}>
+              <div className={styles.newCatActions}>
+                <button className={styles.btnSave} onClick={handleAddCategory} disabled={savingCat}>
                   {savingCat ? "..." : "រក្សាទុក"}
                 </button>
-                <button onClick={() => { setAddingCat(false); setNewCatName(""); }}
-                  style={{ flex: 1, padding: "8px 0", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>
+                <button className={styles.btnCancel} onClick={() => { setAddingCat(false); setNewCatName(""); }}>
                   បោះបង់
                 </button>
               </div>
@@ -425,15 +413,19 @@ export default function StockViewPage() {
           )}
         </div>
       ) : (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-            <button onClick={() => { setSelectedCat(null); setEditId(null); setAdjustId(null); }}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#1a3a8f", fontWeight: 700, fontSize: 14 }}>
+        <div>
+          <div className={styles.detailHeader}>
+            <button
+              className={styles.backBtn}
+              onClick={() => { setSelectedCat(null); setEditId(null); setAdjustId(null); }}
+            >
               ← ត្រឡប់
             </button>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#1a3a8f" }}>{selectedCat}</h3>
-            <button onClick={() => navigate(`/stock-add?category=${encodeURIComponent(selectedCat)}`)}
-              style={{ marginLeft: "auto", padding: "8px 16px", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13 }}>
+            <h3 className={styles.detailTitle}>{selectedCat}</h3>
+            <button
+              className={styles.addItemBtn}
+              onClick={() => navigate(`/stock-add?category=${encodeURIComponent(selectedCat)}`)}
+            >
               + Add Item
             </button>
           </div>
