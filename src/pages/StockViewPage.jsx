@@ -19,6 +19,137 @@ function getStatus(stock_qty, low_stock_alert = 20) {
   return "Active";
 }
 
+// ProductList moved OUTSIDE StockViewPage so it is not re-created on every render
+// (this was causing inputs to lose focus after every keystroke)
+function ProductList({
+  items, editId, editForm, setEditForm, adjustId, adjustType,
+  adjustQty, setAdjustQty, adjustNote, setAdjustNote,
+  startEdit, handleSaveEdit, setEditId, startAdjust, handleAdjust, setAdjustId, handleDelete,
+}) {
+  if (items.length === 0) {
+    return <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>គ្មានទំនិញ</div>;
+  }
+  return (
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+      {items.map((r, i) => {
+        const status      = getStatus(r.stock_qty, r.low_stock_alert);
+        const isEditing   = editId   === r.res_id;
+        const isAdjusting = adjustId === r.res_id;
+        return (
+          <div key={r.res_id} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px" }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: 8, flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "#1a3a8f", color: "#fff", fontSize: 10, fontWeight: 700,
+              }}>
+                VNL
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 14, color: "#1f2937", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {r.res_name}
+                </div>
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>▤ {r.category ?? "—"}</div>
+              </div>
+
+              <div style={{ textAlign: "right", minWidth: 90 }}>
+                <div style={{ fontSize: 11, color: "#9ca3af" }}>STOCK QTY</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{r.stock_qty} {r.unit ?? ""}</div>
+              </div>
+
+              <span style={{
+                fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99,
+                whiteSpace: "nowrap", ...STATUS_STYLE[status],
+              }}>
+                {status}
+              </span>
+
+              <div style={{ display: "flex", gap: 4 }}>
+                <button onClick={() => startAdjust(r, "in")}
+                  style={{ padding: "6px 10px", background: "#d1fae5", color: "#065f46", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+                  +IN
+                </button>
+                <button onClick={() => startAdjust(r, "out")}
+                  style={{ padding: "6px 10px", background: "#ffedd5", color: "#9a3412", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+                  -OUT
+                </button>
+                <button onClick={() => startEdit(r)}
+                  style={{ padding: "6px 10px", background: "#e0e7ff", color: "#3730a3", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
+                  ✏️
+                </button>
+                <button onClick={() => handleDelete(r.res_id)}
+                  style={{ padding: "6px 10px", background: "#fee2e2", color: "#e63946", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            {isAdjusting && (
+              <div style={{ background: adjustType === "in" ? "#f0fdf4" : "#fff7ed", padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontWeight: 700, color: adjustType === "in" ? "#065f46" : "#9a3412" }}>
+                    {adjustType === "in" ? "Stock In" : "Stock Out"} — {r.res_name}
+                  </span>
+                  <input type="number" min="1" placeholder="បរិមាណ" value={adjustQty}
+                    onChange={e => setAdjustQty(e.target.value)}
+                    style={{ width: 100, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} autoFocus />
+                  <input type="text" placeholder="កំណត់ចំណាំ" value={adjustNote}
+                    onChange={e => setAdjustNote(e.target.value)}
+                    style={{ width: 180, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} />
+                  <button onClick={handleAdjust}
+                    style={{ padding: "6px 16px", background: adjustType === "in" ? "#2cb67d" : "#f4a261", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
+                    {adjustType === "in" ? "បញ្ចូល" : "យកចេញ"}
+                  </button>
+                  <button onClick={() => setAdjustId(null)}
+                    style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                    បោះបង់
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {isEditing && (
+              <div style={{ background: "#eff6ff", padding: "12px 16px" }}>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#6b7280" }}>ឈ្មោះ</label>
+                    <input value={editForm.res_name} onChange={e => setEditForm(f => ({ ...f, res_name: e.target.value }))}
+                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 180 }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#6b7280" }}>ស្តុក</label>
+                    <input type="number" value={editForm.stock_qty} onChange={e => setEditForm(f => ({ ...f, stock_qty: e.target.value }))}
+                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#6b7280" }}>តម្លៃ ($)</label>
+                    <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
+                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: "#6b7280" }}>Low Alert</label>
+                    <input type="number" value={editForm.low_stock_alert} onChange={e => setEditForm(f => ({ ...f, low_stock_alert: e.target.value }))}
+                      style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
+                  </div>
+                  <button onClick={handleSaveEdit}
+                    style={{ padding: "6px 16px", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
+                    💾 រក្សាទុក
+                  </button>
+                  <button onClick={() => setEditId(null)}
+                    style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                    បោះបង់
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function StockViewPage() {
   const navigate = useNavigate();
   const [resources, setResources]   = useState([]);
@@ -28,22 +159,22 @@ export default function StockViewPage() {
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [selectedCat, setSelectedCat]   = useState(null);
 
-  // Edit state
   const [editId,   setEditId]   = useState(null);
   const [editForm, setEditForm] = useState({});
 
-  // Stock In/Out state
   const [adjustId,   setAdjustId]   = useState(null);
   const [adjustType, setAdjustType] = useState("in");
   const [adjustQty,  setAdjustQty]  = useState("");
   const [adjustNote, setAdjustNote] = useState("");
 
-  // Add category state
   const [addingCat, setAddingCat]   = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [savingCat, setSavingCat]   = useState(false);
 
+<<<<<<< HEAD
   // Edit/Delete category state
+=======
+>>>>>>> 6934518e9cde3efdcea2e1193611b71e55dc4ad0
   const [editingCatId, setEditingCatId] = useState(null);
   const [editCatName,  setEditCatName]  = useState("");
 
@@ -74,8 +205,10 @@ export default function StockViewPage() {
 
   const handleSaveEdit = async () => {
     try {
+      const original = resources.find(r => r.res_id === editId);
       const updated = await resourceApi.update(editId, {
         res_name:        editForm.res_name,
+        cat_id:          original.cat_id,
         stock_qty:       Number(editForm.stock_qty),
         price:           Number(editForm.price) || 0,
         unit:            editForm.unit,
@@ -171,130 +304,6 @@ export default function StockViewPage() {
 
   const catItems = selectedCat ? filteredResources.filter(r => r.category === selectedCat) : [];
 
-  const ProductList = ({ items }) => (
-    items.length === 0 ? (
-      <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>គ្មានទំនិញ</div>
-    ) : (
-      <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        {items.map((r, i) => {
-          const status      = getStatus(r.stock_qty, r.low_stock_alert);
-          const isEditing   = editId   === r.res_id;
-          const isAdjusting = adjustId === r.res_id;
-          return (
-            <div key={r.res_id} style={{ borderTop: i === 0 ? "none" : "1px solid #f3f4f6" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px" }}>
-                <div style={{
-                  width: 38, height: 38, borderRadius: 8, flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  background: "#1a3a8f", color: "#fff", fontSize: 10, fontWeight: 700,
-                }}>
-                  VNL
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "#1f2937", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {r.res_name}
-                  </div>
-                  <div style={{ fontSize: 12, color: "#9ca3af" }}>▤ {r.category ?? "—"}</div>
-                </div>
-
-                <div style={{ textAlign: "right", minWidth: 90 }}>
-                  <div style={{ fontSize: 11, color: "#9ca3af" }}>STOCK QTY</div>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{r.stock_qty} {r.unit ?? ""}</div>
-                </div>
-
-                <span style={{
-                  fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 99,
-                  whiteSpace: "nowrap", ...STATUS_STYLE[status],
-                }}>
-                  {status}
-                </span>
-
-                <div style={{ display: "flex", gap: 4 }}>
-                  <button onClick={() => startAdjust(r, "in")}
-                    style={{ padding: "6px 10px", background: "#d1fae5", color: "#065f46", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-                    +IN
-                  </button>
-                  <button onClick={() => startAdjust(r, "out")}
-                    style={{ padding: "6px 10px", background: "#ffedd5", color: "#9a3412", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-                    -OUT
-                  </button>
-                  <button onClick={() => startEdit(r)}
-                    style={{ padding: "6px 10px", background: "#e0e7ff", color: "#3730a3", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                    ✏️
-                  </button>
-                  <button onClick={() => handleDelete(r.res_id)}
-                    style={{ padding: "6px 10px", background: "#fee2e2", color: "#e63946", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
-                    🗑️
-                  </button>
-                </div>
-              </div>
-
-              {isAdjusting && (
-                <div style={{ background: adjustType === "in" ? "#f0fdf4" : "#fff7ed", padding: "12px 16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 700, color: adjustType === "in" ? "#065f46" : "#9a3412" }}>
-                      {adjustType === "in" ? "Stock In" : "Stock Out"} — {r.res_name}
-                    </span>
-                    <input type="number" min="1" placeholder="បរិមាណ" value={adjustQty}
-                      onChange={e => setAdjustQty(e.target.value)}
-                      style={{ width: 100, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} autoFocus />
-                    <input type="text" placeholder="កំណត់ចំណាំ" value={adjustNote}
-                      onChange={e => setAdjustNote(e.target.value)}
-                      style={{ width: 180, padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13 }} />
-                    <button onClick={handleAdjust}
-                      style={{ padding: "6px 16px", background: adjustType === "in" ? "#2cb67d" : "#f4a261", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
-                      {adjustType === "in" ? "បញ្ចូល" : "យកចេញ"}
-                    </button>
-                    <button onClick={() => setAdjustId(null)}
-                      style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
-                      បោះបង់
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {isEditing && (
-                <div style={{ background: "#eff6ff", padding: "12px 16px" }}>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
-                    <div>
-                      <label style={{ fontSize: 11, color: "#6b7280" }}>ឈ្មោះ</label>
-                      <input value={editForm.res_name} onChange={e => setEditForm(f => ({ ...f, res_name: e.target.value }))}
-                        style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 180 }} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, color: "#6b7280" }}>ស្តុក</label>
-                      <input type="number" value={editForm.stock_qty} onChange={e => setEditForm(f => ({ ...f, stock_qty: e.target.value }))}
-                        style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, color: "#6b7280" }}>តម្លៃ ($)</label>
-                      <input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
-                        style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 11, color: "#6b7280" }}>Low Alert</label>
-                      <input type="number" value={editForm.low_stock_alert} onChange={e => setEditForm(f => ({ ...f, low_stock_alert: e.target.value }))}
-                        style={{ display: "block", padding: "6px 10px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, width: 80 }} />
-                    </div>
-                    <button onClick={handleSaveEdit}
-                      style={{ padding: "6px 16px", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>
-                      💾 រក្សាទុក
-                    </button>
-                    <button onClick={() => setEditId(null)}
-                      style={{ padding: "6px 12px", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer" }}>
-                      បោះបង់
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    )
-  );
-
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -383,7 +392,6 @@ export default function StockViewPage() {
             );
           })}
 
-          {/* + Add Category folder card */}
           {!addingCat ? (
             <div onClick={() => setAddingCat(true)}
               style={{
@@ -433,7 +441,16 @@ export default function StockViewPage() {
               + Add Item
             </button>
           </div>
-          <ProductList items={catItems} />
+          <ProductList
+            items={catItems}
+            editId={editId} editForm={editForm} setEditForm={setEditForm}
+            adjustId={adjustId} adjustType={adjustType}
+            adjustQty={adjustQty} setAdjustQty={setAdjustQty}
+            adjustNote={adjustNote} setAdjustNote={setAdjustNote}
+            startEdit={startEdit} handleSaveEdit={handleSaveEdit} setEditId={setEditId}
+            startAdjust={startAdjust} handleAdjust={handleAdjust} setAdjustId={setAdjustId}
+            handleDelete={handleDelete}
+          />
         </div>
       )}
     </div>
