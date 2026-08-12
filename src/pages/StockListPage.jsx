@@ -58,9 +58,10 @@ export default function StockListPage() {
 
   const handleSaveEdit = async () => {
     try {
+      const original = resources.find(r => r.res_id === editId);
       const updated = await resourceApi.update(editId, {
         res_name:        editForm.res_name,
-        category:        editForm.category,
+        cat_id:          original.cat_id,
         stock_qty:       Number(editForm.stock_qty),
         price:           Number(editForm.price) || 0,
         unit:            editForm.unit,

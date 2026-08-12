@@ -5,7 +5,7 @@ import styles from "./StockViewPage.module.css";
 
 const API = window.location.hostname === "localhost"
   ? "http://localhost:8000/api"
-  : `${window.location.origin}/api`;
+  : "https://my-system-vp4o.onrender.com/api";
 
 const STATUS_STYLE = {
   "Active":    { background: "#d1fae5", color: "#065f46" },
@@ -42,6 +42,10 @@ export default function StockViewPage() {
   const [addingCat, setAddingCat]   = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [savingCat, setSavingCat]   = useState(false);
+
+  // Edit/Delete category state
+  const [editingCatId, setEditingCatId] = useState(null);
+  const [editCatName,  setEditCatName]  = useState("");
 
   useEffect(() => {
     Promise.all([resourceApi.getAll(), categoryApi.getAll()])
@@ -130,6 +134,27 @@ export default function StockViewPage() {
       alert(err.message || "មិនអាចបន្ថែម Category បានទេ");
     } finally {
       setSavingCat(false);
+    }
+  };
+
+  const handleUpdateCategory = async (id) => {
+    if (!editCatName.trim()) { alert("សូមបញ្ចូលឈ្មោះ Category"); return; }
+    try {
+      const updated = await categoryApi.update(id, { cat_name: editCatName.trim() });
+      setCategories(prev => prev.map(c => c.cat_id === id ? { ...c, ...updated } : c));
+      setEditingCatId(null);
+    } catch (err) {
+      alert(err.message || "មិនអាចកែ Category បានទេ");
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm("លុប Category នេះ? (ទំនិញក្នុងនេះនឹងលែងមាន category)")) return;
+    try {
+      await categoryApi.delete(id);
+      setCategories(prev => prev.filter(c => c.cat_id !== id));
+    } catch (err) {
+      alert(err.message || "មិនអាចលុប Category បានទេ");
     }
   };
 
@@ -306,18 +331,54 @@ export default function StockViewPage() {
             const low       = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Low Stock").length;
             const depleted  = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Depleted").length;
             return (
-              <div key={cat.cat_id} onClick={() => setSelectedCat(cat.cat_name)}
-                style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", cursor: "pointer", border: "2px solid transparent", transition: "all 0.2s" }}
+              <div key={cat.cat_id}
+                style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", cursor: "pointer", border: editingCatId === cat.cat_id ? "2px solid #1a3a8f" : "2px solid transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = "#1a3a8f"}
-                onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#1a3a8f", marginBottom: 8 }}>{cat.cat_name}</div>
-                <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 12 }}>{items.length} items</div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {active   > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#d1fae5", color: "#065f46" }}>{active} Active</span>}
-                  {low      > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#ffedd5", color: "#9a3412" }}>{low} Low</span>}
-                  {depleted > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#fee2e2", color: "#991b1b" }}>{depleted} Depleted</span>}
-                  {items.length === 0 && <span style={{ fontSize: 11, color: "#9ca3af" }}>ទទេ</span>}
-                </div>
+                onMouseLeave={e => { if (editingCatId !== cat.cat_id) e.currentTarget.style.borderColor = "transparent"; }}>
+                {editingCatId === cat.cat_id ? (
+                  <div onClick={e => e.stopPropagation()}>
+                    <input
+                      autoFocus
+                      value={editCatName}
+                      onChange={e => setEditCatName(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") handleUpdateCategory(cat.cat_id); if (e.key === "Escape") setEditingCatId(null); }}
+                      style={{ width: "100%", padding: "6px 8px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 13, marginBottom: 8, boxSizing: "border-box" }}
+                    />
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => handleUpdateCategory(cat.cat_id)}
+                        style={{ flex: 1, padding: "6px 0", background: "#1a3a8f", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700, fontSize: 12 }}>
+                        រក្សាទុក
+                      </button>
+                      <button onClick={() => setEditingCatId(null)}
+                        style={{ flex: 1, padding: "6px 0", background: "#f3f4f6", color: "#6b7280", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>
+                        បោះបង់
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div onClick={() => setSelectedCat(cat.cat_name)}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1a3a8f", marginBottom: 8 }}>{cat.cat_name}</div>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        <button onClick={e => { e.stopPropagation(); setEditingCatId(cat.cat_id); setEditCatName(cat.cat_name); }}
+                          style={{ padding: "3px 6px", background: "#e0e7ff", color: "#3730a3", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>
+                          ✏️
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); handleDeleteCategory(cat.cat_id); }}
+                          style={{ padding: "3px 6px", background: "#fee2e2", color: "#e63946", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 12 }}>{items.length} items</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {active   > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#d1fae5", color: "#065f46" }}>{active} Active</span>}
+                      {low      > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#ffedd5", color: "#9a3412" }}>{low} Low</span>}
+                      {depleted > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99, background: "#fee2e2", color: "#991b1b" }}>{depleted} Depleted</span>}
+                      {items.length === 0 && <span style={{ fontSize: 11, color: "#9ca3af" }}>ទទេ</span>}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
