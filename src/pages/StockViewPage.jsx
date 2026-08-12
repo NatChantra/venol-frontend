@@ -171,10 +171,6 @@ export default function StockViewPage() {
   const [newCatName, setNewCatName] = useState("");
   const [savingCat, setSavingCat]   = useState(false);
 
-<<<<<<< HEAD
-  // Edit/Delete category state
-=======
->>>>>>> 6934518e9cde3efdcea2e1193611b71e55dc4ad0
   const [editingCatId, setEditingCatId] = useState(null);
   const [editCatName,  setEditCatName]  = useState("");
 
