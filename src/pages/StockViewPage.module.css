@@ -1,3 +1,65 @@
+.page { display: flex; flex-direction: column; gap: 16px; }
+
+.header { display: flex; justify-content: space-between; align-items: flex-end; }
+.title { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+.sub { font-size: 12px; color: #9ca3af; }
+.addBtn {
+  background: #1a3a8f; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 9px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.18s;
+}
+.addBtn:hover { background: #0f2460; }
+
+.filters { display: flex; gap: 10px; align-items: center; }
+.searchWrap { position: relative; flex: 1; }
+.searchIcon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.5; }
+.search {
+  width: 100%; padding: 8px 12px 8px 30px;
+  border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 13px; outline: none; transition: border-color 0.18s;
+  background: #fff;
+  box-sizing: border-box;
+}
+.search:focus { border-color: #1a3a8f; }
+.filterSel {
+  padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 12.5px; color: #374151; outline: none; cursor: pointer;
+  background: #fff; white-space: nowrap;
+}
+
+/* Shared grid for both category cards and product cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+
+.productCard {
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: box-shadow 0.18s, transform 0.18s;
+  cursor: pointer;
+}
+.productCard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+
+.productImg {
+  height: 110px; display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.productEmoji { font-size: 40px; opacity: 0.5; }
+.statusBadge { position: absolute; top: 8px; left: 8px; }
+
+.productBody { padding: 12px; }
+.productName { font-size: 13px; font-weight: 700; color: #1a1a2e; line-height: 1.3; margin-bottom: 4px; }
+.productSku { font-size: 10.5px; color: #9ca3af; margin-bottom: 10px; }
+.productFooter { display: flex; justify-content: space-between; align-items: flex-end; }
+.qtyLabel { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; color: #9ca3af; text-transform: uppercase; }
+.qtyVal { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.editBtn {
+  color: #9ca3af; font-size: 14px; cursor: pointer;
+  background: none; border: none; padding: 4px;
+  border-radius: 5px; transition: color 0.15s;
+}
+.editBtn:hover { color: #1a3a8f; }
+
 /* ============================================================
    CATEGORY CARD (fixes the plain/unstyled "Motoback" card)
    ============================================================ */
@@ -101,8 +163,24 @@
 }
 
 /* ============================================================
-   NEW CATEGORY INPUT (inside .newCatCard)
+   NEW / ADD CATEGORY CARD
    ============================================================ */
+.addCatCard {
+  border: 2px dashed #c7d2fe;
+  border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100px; cursor: pointer; color: #1a3a8f; transition: border-color 0.18s;
+  background: #fff;
+}
+.addCatCard:hover { border-color: #1a3a8f; }
+.addCatPlus { font-size: 24px; line-height: 1; }
+.addCatLabel { font-size: 12px; font-weight: 700; margin-top: 4px; }
+.newCatCard {
+  background: #fff; border-radius: 12px; padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 1.5px solid #1a3a8f;
+}
+.newCatTitle { font-size: 12.5px; font-weight: 700; color: #1a3a8f; margin-bottom: 8px; }
+
 .newCatInput {
   width: 100%;
   padding: 8px 10px;
@@ -147,11 +225,37 @@
 .btnCancel:hover { background: #e5e7eb; }
 
 /* ============================================================
-   PRODUCT ROW — badge placement fix (row already defined above)
+   CATEGORY DETAIL HEADER (back button + add item)
    ============================================================ */
-.rowMain .badge {
-  margin: 0 8px;
+.detailHeader { display: flex; align-items: center; gap: 12px; }
+.backBtn { background: none; border: none; cursor: pointer; color: #1a3a8f; font-weight: 700; font-size: 13px; }
+.detailTitle { margin: 0; font-size: 15px; font-weight: 700; color: #1a1a2e; }
+.addItemBtn {
+  margin-left: auto; padding: 8px 14px; background: #1a3a8f; color: #fff;
+  border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12.5px;
 }
+
+/* ============================================================
+   PRODUCT LIST (rows inside a selected category)
+   ============================================================ */
+.listCard { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+.emptyState { text-align: center; padding: 40px; color: #9ca3af; font-size: 13px; }
+.row { border-top: 1px solid #f3f4f6; }
+.row:first-child { border-top: none; }
+.rowMain { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.itemInfo { flex: 1; min-width: 0; }
+.itemName { font-size: 13px; font-weight: 700; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.itemCategory { font-size: 11px; color: #9ca3af; }
+.qtyBlock { text-align: right; min-width: 80px; }
+.rowActions { display: flex; gap: 4px; }
+.btnIn, .btnOut, .btnEdit2, .btnDelete {
+  border: none; border-radius: 6px; cursor: pointer; font-size: 11.5px; font-weight: 700; padding: 6px 9px;
+}
+.btnIn     { background: #d1fae5; color: #065f46; }
+.btnOut    { background: #ffedd5; color: #9a3412; }
+.btnEdit2  { background: #e0e7ff; color: #3730a3; font-weight: 400; }
+.btnDelete { background: #fee2e2; color: #e63946; font-weight: 400; }
+.rowMain .badge { margin: 0 8px; }
 
 /* ============================================================
    STOCK ADJUST PANEL (+IN / -OUT)
@@ -247,11 +351,31 @@
   transition: border-color 0.18s;
   box-sizing: border-box;
 }
+.editField input:focus { border-color: #1a3a8f; }
+.editFieldName  input { width: 160px; }
+.editFieldQty   input,
+.editFieldPrice input,
+.editFieldAlert input { width: 75px; }
+.editSaveBtn   { padding: 6px 14px; background: #1a3a8f; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
+.editCancelBtn { padding: 6px 12px; background: #f3f4f6; color: #6b7280; border: none; border-radius: 7px; cursor: pointer; font-size: 12.5px; }
 
-/* ============================================================
-   RESPONSIVE additions for new category card content
-   ============================================================ */
+.loading { padding: 40px; text-align: center; color: #9ca3af; font-size: 13px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header { flex-direction: column; gap: 12px; align-items: stretch; }
+  .addBtn { width: 100%; text-align: center; }
+  .filters { flex-direction: column; gap: 8px; }
+  .filterSel { width: 100%; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+}
+
 @media (max-width: 480px) {
+  .title { font-size: 18px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .productImg { height: 80px; }
+  .productEmoji { font-size: 30px; }
+  .productName { font-size: 12px; }
   .catCard { padding: 12px; }
   .catName { font-size: 13.5px; }
   .adjustRow, .editRow { flex-direction: column; align-items: stretch; }

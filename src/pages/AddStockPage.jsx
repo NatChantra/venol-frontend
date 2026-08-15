@@ -38,6 +38,9 @@ export default function AddStockPage() {
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
+  // ✅ គណនាតម្លៃសរុបស្វ័យប្រវត្តិ = តម្លៃរាយ (unit price) × បរិមាណ (qty)
+  const totalPrice = (Number(form.price) || 0) * (Number(form.stock_qty) || 0);
+
   const handleSubmit = async () => {
     if (!form.res_name.trim()) { setError("សូមបញ្ចូលឈ្មោះទំនិញ"); return; }
     if (!form.cat_id)          { setError("សូមជ្រើសប្រភេទ");        return; }
@@ -129,9 +132,24 @@ export default function AddStockPage() {
                 <input className={styles.input} type="number" min="0" placeholder="0" value={form.stock_qty} onChange={set("stock_qty")} />
               </div>
               <div className={styles.field}>
-                <label className={styles.label}>⊕ តម្លៃ ($)</label>
+                <label className={styles.label}>⊕ តម្លៃរាយ / មួយឯកតា ($)</label>
                 <input className={styles.input} type="number" min="0" step="0.01" placeholder="0.00" value={form.price} onChange={set("price")} />
               </div>
+            </div>
+
+            {/* ✅ តម្លៃសរុប — គណនាស្វ័យប្រវត្តិ (read-only) */}
+            <div className={styles.field}>
+              <label className={styles.label}>⊕ តម្លៃសរុប (Total Price)</label>
+              <input
+                className={styles.input}
+                type="text"
+                value={`$${totalPrice.toFixed(2)}`}
+                readOnly
+                style={{ background: "#f3f4f6", color: "#1a3a8f", fontWeight: 700, cursor: "not-allowed" }}
+              />
+              <span style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, display: "block" }}>
+                គណនាស្វ័យប្រវត្តិ: {form.price || 0} × {form.stock_qty || 0}
+              </span>
             </div>
 
           </div>
