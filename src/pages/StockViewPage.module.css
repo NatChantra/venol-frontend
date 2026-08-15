@@ -62,53 +62,6 @@
 /* ===== Category card (reuses .grid above for layout) ===== */
 .catCard {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  padding: 16px;
-  cursor: pointer;
-  transition: box-shadow 0.18s, transform 0.18s;
-  border: 1.5px solid transparent;
-}
-.catCard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
-.catCardEditing { border-color: #1a3a8f; }
-
-.catHeaderRow { display: flex; justify-content: space-between; align-items: flex-start; }
-.catName { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-.catCount { font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
-.catBadges { display: flex; gap: 6px; flex-wrap: wrap; }
-.catActions { display: flex; gap: 4px; }
-
-.badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
-.badgeActive   { background: #d1fae5; color: #065f46; }
-.badgeLow      { background: #ffedd5; color: #9a3412; }
-.badgeDepleted { background: #fee2e2; color: #991b1b; }
-.badgeEmpty    { font-size: 10.5px; color: #9ca3af; }
-
-.iconBtn { border: none; background: none; cursor: pointer; font-size: 13px; padding: 3px 5px; border-radius: 5px; }
-.iconBtnEdit:hover   { background: #e0e7ff; }
-.iconBtnDelete:hover { background: #fee2e2; }
-
-/* Category inline edit / new-category form */
-.catEditInput, .newCatInput {
-  width: 100%;
-  padding: 7px 10px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 12.5px;
-  margin-bottom: 8px;
-  outline: none;
-  box-sizing: border-box;
-}
-.catEditInput:focus, .newCatInput:focus { border-color: #1a3a8f; }
-
-.catEditActions, .newCatActions { display: flex; gap: 6px; }
-.btnSave {
-  flex: 1; padding: 7px 0; background: #1a3a8f; color: #fff;
-  border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12px;
-}
-.btnCancel {
-  flex: 1; padding: 7px 0; background: #f3f4f6; color: #6b7280;
-  border: none; border-radius: 7px; cursor: pointer; font-size: 12px;
 }
 
 .addCatCard {
@@ -155,30 +108,6 @@
 .btnEdit2  { background: #e0e7ff; color: #3730a3; font-weight: 400; }
 .btnDelete { background: #fee2e2; color: #e63946; font-weight: 400; }
 
-/* Stock in/out adjust panel */
-.adjustPanel { padding: 12px 14px; }
-.adjustPanelIn  { background: #f0fdf4; }
-.adjustPanelOut { background: #fff7ed; }
-.adjustRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.adjustLabelIn  { font-weight: 700; color: #065f46; font-size: 12.5px; }
-.adjustLabelOut { font-weight: 700; color: #9a3412; font-size: 12.5px; }
-.adjustQtyInput, .adjustNoteInput {
-  padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 7px; font-size: 12.5px; outline: none;
-}
-.adjustQtyInput { width: 90px; }
-.adjustNoteInput { width: 170px; }
-.adjustConfirmIn  { padding: 6px 14px; background: #2cb67d; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
-.adjustConfirmOut { padding: 6px 14px; background: #f4a261; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; font-size: 12.5px; }
-.adjustCancelBtn  { padding: 6px 12px; background: #f3f4f6; color: #6b7280; border: none; border-radius: 7px; cursor: pointer; font-size: 12.5px; }
-
-/* Edit item panel */
-.editPanel { background: #eff6ff; padding: 12px 14px; }
-.editRow { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
-.editField label { font-size: 10.5px; color: #6b7280; }
-.editField input {
-  display: block; padding: 6px 9px; border: 1.5px solid #e5e7eb; border-radius: 7px;
-  font-size: 12.5px; margin-top: 2px; outline: none;
-}
 .editField input:focus { border-color: #1a3a8f; }
 .editFieldName  input { width: 160px; }
 .editFieldQty   input,
@@ -191,17 +120,51 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .header { flex-direction: column; gap: 12px; align-items: stretch; }
-  .addBtn { width: 100%; text-align: center; }
-  .filters { flex-direction: column; gap: 8px; }
-  .filterSel { width: 100%; }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .addBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filterSel {
+    width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
 }
 
 @media (max-width: 480px) {
-  .title { font-size: 18px; }
-  .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .productImg { height: 80px; }
-  .productEmoji { font-size: 30px; }
-  .productName { font-size: 12px; }
+  .title {
+    font-size: 18px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .productImg {
+    height: 80px;
+  }
+
+  .productEmoji {
+    font-size: 30px;
+  }
+
+  .productName {
+    font-size: 12px;
+  }
 }
