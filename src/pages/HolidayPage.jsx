@@ -3,6 +3,10 @@ import { holidayApi } from "../services/api";
 
 const MONTHS_KM = ["មករា","កុម្ភៈ","មិនា","មេសា","ឧសភា","មិថុនា","កក្កដា","សីហា","កញ្ញា","តុលា","វិច្ឆិកា","ធ្នូ"];
 
+const API = window.location.hostname === "localhost"
+  ? "http://localhost:8000/api"
+  : "https://my-system-vp4o.onrender.com/api";
+
 export default function HolidayPage() {
   const [holidays, setHolidays] = useState([]);
   const [loading,  setLoading]  = useState(true);
@@ -11,6 +15,9 @@ export default function HolidayPage() {
   const [form,     setForm]     = useState({ holiday_name: "", holiday_date: "", description: "" });
   const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
+
+  // ✅ ស្ថានភាពសម្រាប់ការបញ្ចូលថ្ងៃឈប់សម្រាកកម្ពុជាដោយស្វ័យប្រវត្តិ
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     holidayApi.getAll()
@@ -58,6 +65,31 @@ export default function HolidayPage() {
     if (!window.confirm("លុបថ្ងៃឈប់សម្រាកនេះ?")) return;
     await holidayApi.delete(id);
     setHolidays(prev => prev.filter(h => h.holiday_id !== id));
+  };
+
+  // ✅ បញ្ចូលថ្ងៃឈប់សម្រាកកម្ពុជាឆ្នាំ 2026 ដោយស្វ័យប្រវត្តិ
+  const handleSeedCambodia = async () => {
+    if (!window.confirm("បញ្ចូលថ្ងៃឈប់សម្រាកសាធារណៈកម្ពុជាទាំងអស់ (ឆ្នាំ 2026)?")) return;
+    setSeeding(true);
+    try {
+      const res = await fetch(`${API}/holidays/seed-cambodia`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ year: 2026 }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.message ?? "មានបញ្ហា"); return; }
+
+      alert(data.message);
+
+      // ទាញយកទិន្នន័យថ្មីឡើងវិញ
+      const updated = await holidayApi.getAll();
+      setHolidays(updated);
+    } catch (err) {
+      alert("ភ្ជាប់ server មិនបាន");
+    } finally {
+      setSeeding(false);
+    }
   };
 
   const isUpcoming = (date) => {
@@ -121,14 +153,28 @@ export default function HolidayPage() {
       )}
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1a1a2e", margin: "0 0 4px" }}>📅 ថ្ងៃឈប់សម្រាក (Holidays)</h2>
           <p style={{ color: "#9ca3af", fontSize: 13, margin: 0 }}>បញ្ជីថ្ងៃឈប់សម្រាកផ្លូវការប្រចាំឆ្នាំ</p>
         </div>
-        <button onClick={openAdd} style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: "#1a3a8f", color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
-          + បន្ថែមថ្ងៃឈប់សម្រាក
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          {/* ✅ ប៊ូតុងបញ្ចូលថ្ងៃឈប់សម្រាកកម្ពុជាដោយស្វ័យប្រវត្តិ */}
+          <button
+            onClick={handleSeedCambodia}
+            disabled={seeding}
+            style={{
+              padding: "10px 20px", borderRadius: 8, border: "1.5px solid #1a3a8f",
+              background: seeding ? "#e5e7eb" : "#fff", color: "#1a3a8f",
+              cursor: seeding ? "default" : "pointer", fontWeight: 700, fontSize: 14,
+            }}
+          >
+            {seeding ? "កំពុងបញ្ចូល..." : "🇰🇭 បញ្ចូលថ្ងៃឈប់សម្រាកកម្ពុជា"}
+          </button>
+          <button onClick={openAdd} style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: "#1a3a8f", color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
+            + បន្ថែមថ្ងៃឈប់សម្រាក
+          </button>
+        </div>
       </div>
 
       {/* Year Filter */}
