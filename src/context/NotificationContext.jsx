@@ -26,6 +26,11 @@ export function NotificationProvider({ children }) {
   const prevResRef = useRef([]);
   const prevLeaveRef = useRef([]);
 
+  // ✅ Guard flag — ការពារកុំឲ្យ polling ជាំគ្នា ខណៈពេលមុនមិនទាន់ចប់
+  // នេះជាមូលហេតុសំខាន់ដែលធ្វើឲ្យ server (Render free-tier) កកស្ទះ
+  // ហើយបណ្តាលឲ្យ request ផ្សេងទៀត (ដូចជា Stock In/Out) ជាប់គាំង "ភ្ជាប់ server មិនបាន"
+  const isCheckingRef = useRef(false);
+
   const unread = notifications.filter((n) => !n.read).length;
 
   const addNotification = (notif) => {
@@ -131,15 +136,26 @@ export function NotificationProvider({ children }) {
     prevLeaveRef.current = arr;
   };
 
+  // ✅ ដំណើរការតាមលំដាប់ (sequential) ជំនួសឲ្យ concurrent
+  // ដើម្បីកុំឲ្យ server (Render free-tier, worker តិច) ទទួល request ៣ ក្នុងពេលតែមួយ
+  const runChecks = async () => {
+    if (isCheckingRef.current) return; // បើមុនមិនទាន់ចប់ រំលងវគ្គនេះចោល
+    isCheckingRef.current = true;
+    try {
+      await checkAttendance();
+      await checkStock();
+      await checkLeaves();
+    } finally {
+      isCheckingRef.current = false;
+    }
+  };
+
   useEffect(() => {
-    checkAttendance();
-    checkStock();
-    checkLeaves();
-    const t = setInterval(() => {
-      checkAttendance();
-      checkStock();
-      checkLeaves();
-    }, 5000);
+    runChecks();
+    // ✅ បង្កើនពេលវេលាពី 5 វិនាទី → 30 វិនាទី
+    // កាត់បន្ថយបន្ទុក server ៦ ដង ដោះស្រាយបញ្ហា "ភ្ជាប់ server មិនបាន"
+    // ដែលកើតឡើងខណៈពេល Stock In/Out ព្យាយាមហៅ API ស្របគ្នា
+    const t = setInterval(runChecks, 30000);
     return () => clearInterval(t);
   }, []);
 

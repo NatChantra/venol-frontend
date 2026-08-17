@@ -14,9 +14,9 @@ function getStatus(stock_qty, low_stock_alert = 20) {
 }
 
 const STATUS_BADGE_CLASS = {
-  "Active":    styles.badgeActive,
-  "Low Stock": styles.badgeLow,
-  "Depleted":  styles.badgeDepleted,
+  "Active":    "badgeActive",
+  "Low Stock": "badgeLow",
+  "Depleted":  "badgeDepleted",
 };
 
 // ProductList is defined OUTSIDE StockViewPage so React does not recreate it
@@ -40,8 +40,6 @@ function ProductList({
         return (
           <div key={r.res_id} className={styles.row}>
             <div className={styles.rowMain}>
-              <div className={styles.avatar}>VNL</div>
-
               <div className={styles.itemInfo}>
                 <div className={styles.itemName}>{r.res_name}</div>
                 <div className={styles.itemCategory}>▤ {r.category ?? "—"}</div>
@@ -49,17 +47,17 @@ function ProductList({
 
               <div className={styles.qtyBlock}>
                 <div className={styles.qtyLabel}>STOCK QTY</div>
-                <div className={styles.qtyValue}>{r.stock_qty} {r.unit ?? ""}</div>
+                <div className={styles.qtyVal}>{r.stock_qty} {r.unit ?? ""}</div>
               </div>
 
-              <span className={`${styles.statusBadge} ${STATUS_BADGE_CLASS[status]}`}>
+              <span className={`${styles.badge} ${styles[STATUS_BADGE_CLASS[status]]}`}>
                 {status}
               </span>
 
               <div className={styles.rowActions}>
                 <button className={styles.btnIn} onClick={() => startAdjust(r, "in")}>+IN</button>
                 <button className={styles.btnOut} onClick={() => startAdjust(r, "out")}>-OUT</button>
-                <button className={styles.btnEdit} onClick={() => startEdit(r)}>✏️</button>
+                <button className={styles.btnEdit2} onClick={() => startEdit(r)}>✏️</button>
                 <button className={styles.btnDelete} onClick={() => handleDelete(r.res_id)}>🗑️</button>
               </div>
             </div>
@@ -316,7 +314,7 @@ export default function StockViewPage() {
       </div>
 
       {!selectedCat ? (
-        <div className={styles.catGrid}>
+        <div className={styles.grid}>
           {categories.map(cat => {
             const items     = filteredResources.filter(r => r.category === cat.cat_name);
             const active    = items.filter(r => getStatus(r.stock_qty, r.low_stock_alert) === "Active").length;
