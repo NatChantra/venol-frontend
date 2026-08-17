@@ -5,7 +5,7 @@ import styles from "./StockListPage.module.css";
 
 const API = window.location.hostname === "localhost"
   ? "http://localhost:8000/api"
-  : `${window.location.origin}/api`;
+  : "https://my-system-vp4o.onrender.com/api";
 
 const STATUS_STYLE = {
   "Active":    { background: "#d1fae5", color: "#065f46" },
