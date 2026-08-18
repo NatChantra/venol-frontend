@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import styles from "./SettingsPage.module.css";
 
+const API = window.location.hostname === "localhost"
+  ? "http://localhost:8000/api"
+  : "https://my-system-vp4o.onrender.com/api";
+
 export default function SettingsPage() {
   const { user } = useAuth();
   const [saved, setSaved]   = useState(false);
@@ -10,6 +14,12 @@ export default function SettingsPage() {
   const [tz, setTz]         = useState("(GMT+07:00) Indochina Time (Cambodia)");
   const [darkMode, setDarkMode] = useState(false);
   const [photo, setPhoto]   = useState(localStorage.getItem("userPhoto") || null);
+
+  // ✅ ស្ថានភាពសម្រាប់ Change Password
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwError, setPwError]     = useState("");
+  const [pwSuccess, setPwSuccess] = useState("");
+  const [pwSaving, setPwSaving]   = useState(false);
 
   const toggle = (k) => setNotifs(n => ({ ...n, [k]: !n[k] }));
 
@@ -22,6 +32,51 @@ export default function SettingsPage() {
         localStorage.setItem("userPhoto", ev.target.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // ✅ ដំណើរការប្តូរ Password
+  const handleChangePassword = async () => {
+    setPwError("");
+    setPwSuccess("");
+
+    if (!pwForm.current || !pwForm.next || !pwForm.confirm) {
+      setPwError("សូមបំពេញគ្រប់ប្រអប់ទាំងអស់");
+      return;
+    }
+    if (pwForm.next.length < 4) {
+      setPwError("Password ថ្មីត្រូវមានយ៉ាងតិច 4 តួអក្សរ");
+      return;
+    }
+    if (pwForm.next !== pwForm.confirm) {
+      setPwError("Password ថ្មី និង Confirm Password មិនដូចគ្នាទេ");
+      return;
+    }
+
+    setPwSaving(true);
+    try {
+      const res = await fetch(`${API}/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          user_id: user?.user_id,
+          current_password: pwForm.current,
+          new_password: pwForm.next,
+          new_password_confirmation: pwForm.confirm,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwError(data.message ?? "មានបញ្ហា សូមព្យាយាមម្តងទៀត");
+        return;
+      }
+      setPwSuccess(data.message ?? "✅ ប្តូរ Password ជោគជ័យ!");
+      setPwForm({ current: "", next: "", confirm: "" });
+      setTimeout(() => setPwSuccess(""), 4000);
+    } catch (err) {
+      setPwError("ភ្ជាប់ server មិនបាន — លម្អិត: " + (err?.message || err));
+    } finally {
+      setPwSaving(false);
     }
   };
 
@@ -72,11 +127,49 @@ export default function SettingsPage() {
 
           <div className={styles.card}>
             <div className={styles.cardTitle}>🔒 Security & Password</div>
-            <div className={styles.field}><label>Current Password</label><input className={styles.input} type="password" /></div>
-            <div className={styles.field}><label>New Password</label><input className={styles.input} type="password" /></div>
-            <div className={styles.hint}>Must be at least 8 characters including a number and symbol.</div>
-            <div className={styles.field}><label>Confirm New Password</label><input className={styles.input} type="password" /></div>
-            <button className={styles.updatePwBtn}>Update Password</button>
+
+            {pwError && (
+              <div style={{ background: "#fee2e2", color: "#e63946", padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>
+                ⚠️ {pwError}
+              </div>
+            )}
+            {pwSuccess && (
+              <div style={{ background: "#d1fae5", color: "#065f46", padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 700 }}>
+                {pwSuccess}
+              </div>
+            )}
+
+            <div className={styles.field}>
+              <label>Current Password</label>
+              <input
+                className={styles.input}
+                type="password"
+                value={pwForm.current}
+                onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))}
+              />
+            </div>
+            <div className={styles.field}>
+              <label>New Password</label>
+              <input
+                className={styles.input}
+                type="password"
+                value={pwForm.next}
+                onChange={e => setPwForm(f => ({ ...f, next: e.target.value }))}
+              />
+            </div>
+            <div className={styles.hint}>Must be at least 4 characters.</div>
+            <div className={styles.field}>
+              <label>Confirm New Password</label>
+              <input
+                className={styles.input}
+                type="password"
+                value={pwForm.confirm}
+                onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))}
+              />
+            </div>
+            <button className={styles.updatePwBtn} onClick={handleChangePassword} disabled={pwSaving}>
+              {pwSaving ? "កំពុងរក្សាទុក..." : "Update Password"}
+            </button>
           </div>
         </div>
 
