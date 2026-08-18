@@ -62,7 +62,7 @@ export default function TopBar({ pageTitle, onMenuClick }) {
           )}
         </div>
 
-        <button className={styles.iconBtn}>⚙️</button>
+        <button className={styles.iconBtn} onClick={() => navigate("/settings")}>⚙️</button>
 
         {/* User menu */}
         <div className={styles.iconWrap} ref={userRef}>
