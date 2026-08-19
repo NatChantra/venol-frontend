@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
 import styles from "./TopBar.module.css";
 
 export default function TopBar({ pageTitle, onMenuClick }) {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { notifications, unread, markRead, markAllRead } = useNotifications();
   const [showNotif, setShowNotif] = useState(false);
@@ -81,8 +83,8 @@ export default function TopBar({ pageTitle, onMenuClick }) {
                 </div>
               </div>
               <hr className={styles.divider} />
-              <button className={styles.menuItem}>👤 Profile</button>
-              <button className={styles.menuItem}>⚙️ Settings</button>
+              <button className={styles.menuItem} onClick={() => navigate("/settings")}>👤 Profile</button>
+              <button className={styles.menuItem} onClick={() => navigate("/settings")}>⚙️ Settings</button>
               <hr className={styles.divider} />
               <button className={`${styles.menuItem} ${styles.logoutItem}`} onClick={logout}>
                 🚪 Sign Out
