@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import StatCard from "../components/shared/StatCard";
 import MiniBarChart from "../components/shared/MiniBarChart";
 import styles from "./InventoryHealthPage.module.css";
@@ -24,6 +26,9 @@ export default function InventoryHealthPage() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
   const [period,  setPeriod]  = useState("week");
+  const [exporting, setExporting] = useState(false);
+
+  const reportRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -48,6 +53,33 @@ export default function InventoryHealthPage() {
           .finally(() => setLoading(false));
       });
   }, [period]);
+
+  const handleExportPDF = async () => {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        backgroundColor: "#f8fafc",
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+
+      const today = new Date().toISOString().slice(0, 10);
+      pdf.save(`inventory-health-report-${today}.pdf`);
+    } catch (err) {
+      alert("Export PDF មិនជោគជ័យ: " + err.message);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) return (
     <div style={{
@@ -74,7 +106,7 @@ export default function InventoryHealthPage() {
   );
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} ref={reportRef}>
 
       {/* Header */}
       <div className={styles.header}>
@@ -94,7 +126,13 @@ export default function InventoryHealthPage() {
             <option value="last_week">Last Week</option>
             <option value="month">This Month</option>
           </select>
-          <button className={styles.exportBtn}>↓ Export PDF</button>
+          <button
+            className={styles.exportBtn}
+            onClick={handleExportPDF}
+            disabled={exporting}
+          >
+            {exporting ? "កំពុងបង្កើត..." : "↓ Export PDF"}
+          </button>
         </div>
       </div>
 
