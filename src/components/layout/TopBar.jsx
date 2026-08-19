@@ -64,6 +64,7 @@ export default function TopBar({ pageTitle, onMenuClick }) {
           )}
         </div>
 
+        {/* ⚙️ Settings icon — ដោយផ្ទាល់ (កន្លែងតែមួយគត់សម្រាប់ចូល Settings) */}
         <button className={styles.iconBtn} onClick={() => navigate("/settings")}>⚙️</button>
 
         {/* User menu */}
@@ -84,7 +85,6 @@ export default function TopBar({ pageTitle, onMenuClick }) {
               </div>
               <hr className={styles.divider} />
               <button className={styles.menuItem} onClick={() => navigate("/settings")}>👤 Profile</button>
-              <button className={styles.menuItem} onClick={() => navigate("/settings")}>⚙️ Settings</button>
               <hr className={styles.divider} />
               <button className={`${styles.menuItem} ${styles.logoutItem}`} onClick={logout}>
                 🚪 Sign Out
