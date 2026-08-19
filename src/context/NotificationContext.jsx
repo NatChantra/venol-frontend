@@ -20,15 +20,45 @@ async function safeFetchJson(url) {
   }
 }
 
+// ✅ សារជូនពរតាមប្រភេទថ្ងៃឈប់សម្រាក — ផ្គូផ្គងតាមពាក្យគន្លឹះក្នុងឈ្មោះថ្ងៃឈប់សម្រាក
+function getHolidayGreeting(holidayName) {
+  const name = holidayName || "";
+
+  const patterns = [
+    { keywords: ["ចូលឆ្នាំសកល"],                  greeting: "🎉 សូមរីករាយថ្ងៃចូលឆ្នាំសកល! Happy New Year!" },
+    { keywords: ["ជ័យជម្នះ", "ប្រល័យពូជសាសន៍"],    greeting: "🕊️ ទិវាជ័យជម្នះលើរបបប្រល័យពូជសាសន៍" },
+    { keywords: ["នារីអន្តរជាតិ"],                  greeting: "🌷 សូមរីករាយថ្ងៃនារីអន្តរជាតិ ៨ មីនា!" },
+    { keywords: ["ចូលឆ្នាំថ្មីប្រពៃណី"],            greeting: "🎊 សូមរីករាយបុណ្យចូលឆ្នាំថ្មីប្រពៃណីជាតិខ្មែរ! 🇰🇭" },
+    { keywords: ["ពលកម្មអន្តរជាតិ"],                greeting: "👷 សូមរីករាយទិវាពលកម្មអន្តរជាតិ!" },
+    { keywords: ["ច្រត់ព្រះនង្គ័ល"],                greeting: "🌾 សូមរីករាយពិធីបុណ្យច្រត់ព្រះនង្គ័ល!" },
+    { keywords: ["វិសាខបូជា"],                      greeting: "🙏 សូមរីករាយថ្ងៃវិសាខបូជា!" },
+    { keywords: ["ព្រះមហាក្សត្រ", "ព្រះមហាក្សត្រី"], greeting: "👑 សូមថ្វាយព្រះពរបំណងឲ្យព្រះជន្មាយុយឺនយូរ!" },
+    { keywords: ["រដ្ឋធម្មនុញ្ញ"],                   greeting: "📜 សូមរីករាយទិវាបុណ្យរដ្ឋធម្មនុញ្ញ!" },
+    { keywords: ["ភ្ជុំបិណ្ឌ"],                      greeting: "🙏 សូមរីករាយបុណ្យភ្ជុំបិណ្ឌ!" },
+    { keywords: ["សីហនុ", "វិញ្ញាណក្ខន្ធ"],          greeting: "🕯️ ទិវាប្រារព្ធពិធីគោរពព្រះវិញ្ញាណក្ខន្ធ ព្រះករុណា" },
+    { keywords: ["គ្រងព្រះបរមរាជសម្បត្តិ"],          greeting: "👑 សូមរីករាយព្រះរាជពិធីគ្រងព្រះបរមរាជសម្បត្តិ!" },
+    { keywords: ["ឯករាជ្យជាតិ"],                     greeting: "🇰🇭 សូមរីករាយទិវាឯករាជ្យជាតិ!" },
+    { keywords: ["ព្រះនាងព្រះទង"],                   greeting: "👑 ខួបកំណើតព្រះនាងព្រះទង" },
+    { keywords: ["អុំទូក"],                          greeting: "🚣 សូមរីករាយបុណ្យអុំទូក!" },
+    { keywords: ["សន្តិភាព"],                        greeting: "☮️ សូមរីករាយទិវាសន្តិភាពនៅកម្ពុជា!" },
+  ];
+
+  for (const p of patterns) {
+    if (p.keywords.some(k => name.includes(k))) return p.greeting;
+  }
+  return `🎉 ថ្ងៃនេះជា "${name}"! សូមរីករាយ`;
+}
+
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
-  const prevAttRef = useRef([]);
-  const prevResRef = useRef([]);
-  const prevLeaveRef = useRef([]);
+  const prevAttRef     = useRef([]);
+  const prevResRef     = useRef([]);
+  const prevLeaveRef   = useRef([]);
 
-  // ✅ Guard flag — ការពារកុំឲ្យ polling ជាំគ្នា ខណៈពេលមុនមិនទាន់ចប់
-  // នេះជាមូលហេតុសំខាន់ដែលធ្វើឲ្យ server (Render free-tier) កកស្ទះ
-  // ហើយបណ្តាលឲ្យ request ផ្សេងទៀត (ដូចជា Stock In/Out) ជាប់គាំង "ភ្ជាប់ server មិនបាន"
+  // ✅ ធានាកុំឲ្យ notification ថ្ងៃឈប់សម្រាកលោតច្រើនដងក្នុងមួយថ្ងៃ
+  const notifiedHolidayDateRef = useRef(null);
+
+  // ✅ Guard flag — ការពារកុំឲ្យ polling ជាំគ្នា
   const isCheckingRef = useRef(false);
 
   const unread = notifications.filter((n) => !n.read).length;
@@ -136,15 +166,37 @@ export function NotificationProvider({ children }) {
     prevLeaveRef.current = arr;
   };
 
+  // ✅ ត្រួតពិនិត្យថ្ងៃឈប់សម្រាក — បើថ្ងៃនេះជាថ្ងៃឈប់សម្រាក ផ្ញើ notification ជូនពរ
+  const checkHolidays = async () => {
+    const data = await safeFetchJson(`${API}/holidays`);
+    if (!data) return;
+    const arr = Array.isArray(data) ? data : [];
+
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    // បើថ្ងៃនេះបានជូនដំណឹងរួចហើយ (ក្នុង session នេះ) កុំធ្វើម្តងទៀត
+    if (notifiedHolidayDateRef.current === today) return;
+
+    const todayHoliday = arr.find((h) => (h.holiday_date || "").slice(0, 10) === today);
+
+    if (todayHoliday) {
+      addNotification({
+        type: "holiday",
+        message: getHolidayGreeting(todayHoliday.holiday_name),
+      });
+      notifiedHolidayDateRef.current = today;
+    }
+  };
+
   // ✅ ដំណើរការតាមលំដាប់ (sequential) ជំនួសឲ្យ concurrent
-  // ដើម្បីកុំឲ្យ server (Render free-tier, worker តិច) ទទួល request ៣ ក្នុងពេលតែមួយ
   const runChecks = async () => {
-    if (isCheckingRef.current) return; // បើមុនមិនទាន់ចប់ រំលងវគ្គនេះចោល
+    if (isCheckingRef.current) return;
     isCheckingRef.current = true;
     try {
       await checkAttendance();
       await checkStock();
       await checkLeaves();
+      await checkHolidays();
     } finally {
       isCheckingRef.current = false;
     }
@@ -152,9 +204,6 @@ export function NotificationProvider({ children }) {
 
   useEffect(() => {
     runChecks();
-    // ✅ បង្កើនពេលវេលាពី 5 វិនាទី → 30 វិនាទី
-    // កាត់បន្ថយបន្ទុក server ៦ ដង ដោះស្រាយបញ្ហា "ភ្ជាប់ server មិនបាន"
-    // ដែលកើតឡើងខណៈពេល Stock In/Out ព្យាយាមហៅ API ស្របគ្នា
     const t = setInterval(runChecks, 30000);
     return () => clearInterval(t);
   }, []);
