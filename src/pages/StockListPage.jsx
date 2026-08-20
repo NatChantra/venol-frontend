@@ -5,7 +5,7 @@ import styles from "./StockListPage.module.css";
 
 const API = window.location.hostname === "localhost"
   ? "http://localhost:8000/api"
-  : `${window.location.origin}/api`;
+  : "https://my-system-vp4o.onrender.com/api";
 
 const STATUS_STYLE = {
   "Active":    { background: "#d1fae5", color: "#065f46" },
@@ -58,9 +58,10 @@ export default function StockListPage() {
 
   const handleSaveEdit = async () => {
     try {
+      const original = resources.find(r => r.res_id === editId);
       const updated = await resourceApi.update(editId, {
         res_name:        editForm.res_name,
-        category:        editForm.category,
+        cat_id:          original.cat_id,
         stock_qty:       Number(editForm.stock_qty),
         price:           Number(editForm.price) || 0,
         unit:            editForm.unit,

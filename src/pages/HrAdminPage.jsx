@@ -199,6 +199,7 @@ export default function HrAdminPage() {
                   />
                 </div>
               ))}
+
               <div style={{ marginBottom: 14 }}>
                 <label className={styles.fieldLabel}>ផ្នែកការងារ</label>
                 <select className={styles.fieldInput} value={form.dept_id} onChange={set("dept_id")}>
@@ -353,10 +354,14 @@ export default function HrAdminPage() {
                   </span>
                 </td>
                 <td style={{ padding: "10px 16px" }}>
-                  <div className={styles.rowActions}>
-                    <button onClick={() => handleLeaveStatus(lv.leave_id, "Approved")} className={styles.approveActionBtn}>អនុញ្ញាត</button>
-                    <button onClick={() => handleLeaveStatus(lv.leave_id, "Rejected")} className={styles.rejectActionBtn}>បដិសេធ</button>
-                  </div>
+                  {lv.status === "Pending" ? (
+                    <div className={styles.rowActions}>
+                      <button onClick={() => handleLeaveStatus(lv.leave_id, "Approved")} className={styles.approveActionBtn}>អនុញ្ញាត</button>
+                      <button onClick={() => handleLeaveStatus(lv.leave_id, "Rejected")} className={styles.rejectActionBtn}>បដិសេធ</button>
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: 12, color: "#9ca3af" }}>សម្រេចរួច</span>
+                  )}
                 </td>
               </tr>
             ))}

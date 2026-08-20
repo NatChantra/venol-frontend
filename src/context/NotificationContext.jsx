@@ -20,11 +20,41 @@ async function safeFetchJson(url) {
   }
 }
 
+// ✅ សារជូនពរផ្ទាល់ខ្លួនសម្រាប់ថ្ងៃឈប់សម្រាកសំខាន់ៗ
+// អាចបន្ថែម/កែសារបានតាមចង់ — key ត្រូវផ្គូផ្គងជាមួយផ្នែកណាមួយក្នុង holiday_name
+const HOLIDAY_GREETINGS = [
+  { match: "ចូលឆ្នាំសកល",        greeting: "🎉 រីករាយថ្ងៃចូលឆ្នាំសកលថ្មី! សូមឆ្នាំនេះនាំមកនូវសំណាងល្អ!" },
+  { match: "ជ័យជម្នះលើរបបប្រល័យពូជសាសន៍", greeting: "🕊️ ទិវាជ័យជម្នះលើរបបប្រល័យពូជសាសន៍ — សូមរំលឹកគុណដល់ជាតិមាតុភូមិ" },
+  { match: "នារីអន្តរជាតិ",       greeting: "💐 រីករាយទិវានារីអន្តរជាតិ ៨ មីនា! សូមគោរពដល់នារីទាំងអស់!" },
+  { match: "ចូលឆ្នាំថ្មីប្រពៃណីជាតិ", greeting: "🎊 រីករាយបុណ្យចូលឆ្នាំថ្មីប្រពៃណីជាតិខ្មែរ! សូមមានសុខភាពល្អ សំណាងល្អ!" },
+  { match: "ពលកម្មអន្តរជាតិ",      greeting: "👷 រីករាយទិវាពលកម្មអន្តរជាតិ! សូមអរគុណដល់កម្លាំងពលកម្មទាំងអស់!" },
+  { match: "ច្រត់ព្រះនង្គ័ល",      greeting: "🌾 រីករាយពិធីបុណ្យច្រត់ព្រះនង្គ័ល!" },
+  { match: "វិសាខបូជា",           greeting: "🙏 រីករាយថ្ងៃវិសាខបូជា! សូមប្រកបដោយសន្តិភាព" },
+  { match: "ព្រះមហាក្សត្រ",        greeting: "👑 រីករាយព្រះរាជពិធីបុណ្យខួបកំណើត ព្រះមហាក្សត្រ!" },
+  { match: "ព្រះមហាក្សត្រី",       greeting: "👑 រីករាយព្រះរាជពិធីបុណ្យខួបកំណើត ព្រះមហាក្សត្រី!" },
+  { match: "រដ្ឋធម្មនុញ្ញ",         greeting: "📜 រីករាយទិវាបុណ្យរដ្ឋធម្មនុញ្ញកម្ពុជា!" },
+  { match: "ភ្ជុំបិណ្ឌ",            greeting: "🙏 រីករាយពិធីបុណ្យភ្ជុំបិណ្ឌ! សូមរំលឹកគុណដល់អយ្យកោអយ្យិកា" },
+  { match: "សីហនុ",               greeting: "🕯️ ទិវាប្រារព្ធពិធីគោរពព្រះវិញ្ញាណក្ខន្ធព្រះករុណា ព្រះបាទសម្តេចព្រះនរោត្តម សីហនុ" },
+  { match: "គ្រងព្រះបរមរាជសម្បត្តិ", greeting: "👑 រីករាយព្រះរាជពិធីគ្រងព្រះបរមរាជសម្បត្តិ!" },
+  { match: "ឯករាជ្យជាតិ",          greeting: "🇰🇭 រីករាយទិវាឯករាជ្យជាតិកម្ពុជា!" },
+  { match: "ព្រះនាងព្រះទង",        greeting: "👑 រីករាយព្រះរាជពិធីបុណ្យខួបកំណើត ព្រះនាងព្រះទង!" },
+  { match: "អុំទូក",              greeting: "🚣 រីករាយពិធីបុណ្យអុំទូក! សូមមានសុភមង្គល" },
+  { match: "សន្តិភាព",            greeting: "🕊️ រីករាយទិវាសន្តិភាពនៅកម្ពុជា!" },
+];
+
+function getHolidayGreeting(holidayName) {
+  const found = HOLIDAY_GREETINGS.find(h => holidayName?.includes(h.match));
+  return found ? found.greeting : `🎉 ថ្ងៃនេះជាថ្ងៃឈប់សម្រាក: ${holidayName}! សូមរីករាយថ្ងៃបុណ្យ!`;
+}
+
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
-  const prevAttRef = useRef([]);
-  const prevResRef = useRef([]);
+  const prevAttRef   = useRef([]);
+  const prevResRef   = useRef([]);
   const prevLeaveRef = useRef([]);
+
+  // ✅ Guard flag — ការពារកុំឲ្យ polling ជាំគ្នា ខណៈពេលមុនមិនទាន់ចប់
+  const isCheckingRef = useRef(false);
 
   const unread = notifications.filter((n) => !n.read).length;
 
@@ -131,15 +161,46 @@ export function NotificationProvider({ children }) {
     prevLeaveRef.current = arr;
   };
 
+  // ✅ ពិនិត្យថ្ងៃឈប់សម្រាក — បើថ្ងៃនេះជាថ្ងៃឈប់សម្រាក ផ្ញើសារជូនពរស្វ័យប្រវត្តិ
+  // ប្រើ localStorage ដើម្បីកុំឲ្យផ្ញើសារជាំគ្នាច្រើនដងក្នុងមួយថ្ងៃ (ទោះបើ refresh ក៏ដោយ)
+  const checkHolidays = async () => {
+    const data = await safeFetchJson(`${API}/holidays`);
+    if (!data) return;
+    const arr = Array.isArray(data) ? data : [];
+
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const todaysHolidays = arr.filter(h => h.holiday_date?.slice(0, 10) === today);
+
+    todaysHolidays.forEach(h => {
+      const seenKey = `holidayNotified_${h.holiday_id}_${today}`;
+      if (localStorage.getItem(seenKey)) return; // ធ្លាប់ជូនដំណឹងរួចហើយថ្ងៃនេះ
+
+      addNotification({
+        type: "holiday",
+        message: getHolidayGreeting(h.holiday_name),
+      });
+      localStorage.setItem(seenKey, "1");
+    });
+  };
+
+  // ✅ ដំណើរការតាមលំដាប់ (sequential) ជំនួសឲ្យ concurrent
+  const runChecks = async () => {
+    if (isCheckingRef.current) return; // បើមុនមិនទាន់ចប់ រំលងវគ្គនេះចោល
+    isCheckingRef.current = true;
+    try {
+      await checkAttendance();
+      await checkStock();
+      await checkLeaves();
+      await checkHolidays();
+    } finally {
+      isCheckingRef.current = false;
+    }
+  };
+
   useEffect(() => {
-    checkAttendance();
-    checkStock();
-    checkLeaves();
-    const t = setInterval(() => {
-      checkAttendance();
-      checkStock();
-      checkLeaves();
-    }, 5000);
+    runChecks();
+    // ✅ ពិនិត្យរៀងរាល់ 30 វិនាទី (កាត់បន្ថយបន្ទុក server)
+    const t = setInterval(runChecks, 30000);
     return () => clearInterval(t);
   }, []);
 

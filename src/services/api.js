@@ -150,9 +150,10 @@ export const supplierApi = {
 };
 
 export const categoryApi = {
-  getAll:   ()      => request("GET",    "/categories"),
-  create:   (data)  => request("POST",   "/categories", data),
-  delete:   (id)    => request("DELETE", `/categories/${id}`),
+  getAll:   ()          => request("GET",    "/categories"),
+  create:   (data)      => request("POST",   "/categories", data),
+  update:   (id, data)  => request("PUT",    `/categories/${id}`, data),
+  delete:   (id)        => request("DELETE", `/categories/${id}`),
 };
 
 export const holidayApi = {
