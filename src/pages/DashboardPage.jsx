@@ -122,15 +122,20 @@ export default function DashboardPage() {
                 View Profile
               </button>
             </div>
-            {["Personal Information","Length of Service","Education","Location","Phone","Email"].map((item, i) => (
-              <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderTop:"1px solid #f3f4f6", cursor:"pointer", fontSize:13, color:"#374151" }}
-                onMouseEnter={e => e.currentTarget.style.color = "#1a3a8f"}
-                onMouseLeave={e => e.currentTarget.style.color = "#374151"}
-              >
-                <span>{item}</span>
-                <span style={{ color:"#9ca3af" }}>›</span>
-              </div>
-            ))}
+           {/* ត្រូវជំនួសកូដ .map() ចាស់ (ដែលគ្មាន onClick) ដោយកូដនេះ */}
+
+{["Personal Information","Length of Service","Education","Location","Phone","Email"].map((item, i) => (
+  <div
+    key={i}
+    onClick={() => navigate("/settings")}
+    style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderTop:"1px solid #f3f4f6", cursor:"pointer", fontSize:13, color:"#374151" }}
+    onMouseEnter={e => e.currentTarget.style.color = "#1a3a8f"}
+    onMouseLeave={e => e.currentTarget.style.color = "#374151"}
+  >
+    <span>{item}</span>
+    <span style={{ color:"#9ca3af" }}>›</span>
+  </div>
+))}
           </div>
 
           <div className={styles.card}>
