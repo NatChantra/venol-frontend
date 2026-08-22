@@ -1,14 +1,13 @@
-
-
-Inventoryhealthpage · JSX
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import StatCard from "../components/shared/StatCard";
 import MiniBarChart from "../components/shared/MiniBarChart";
 import styles from "./InventoryHealthPage.module.css";
- 
+
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const STATUS_COLOR = { Critical: "red", "Low Stock": "orange", Approaching: "blue" };
- 
+
 const EMPTY = {
   total_stock_value: 0,
   low_stock_count: 0,
@@ -19,19 +18,22 @@ const EMPTY = {
   stock_categories: [],
   reorder_list: [],
 };
- 
+
 const BASE_URL = "https://my-system-vp4o.onrender.com";
- 
+
 export default function InventoryHealthPage() {
   const [data,    setData]    = useState(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
   const [period,  setPeriod]  = useState("week");
- 
+  const [exporting, setExporting] = useState(false);
+
+  const reportRef = useRef(null);
+
   useEffect(() => {
     setLoading(true);
     setError("");
- 
+
     // ដាស់ Backend មុន (Render Free Plan Sleep)
     fetch(`${BASE_URL}/api/ping`, {
       headers: { Accept: "application/json" },
@@ -51,7 +53,34 @@ export default function InventoryHealthPage() {
           .finally(() => setLoading(false));
       });
   }, [period]);
- 
+
+  const handleExportPDF = async () => {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        backgroundColor: "#f8fafc",
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+
+      const today = new Date().toISOString().slice(0, 10);
+      pdf.save(`inventory-health-report-${today}.pdf`);
+    } catch (err) {
+      alert("Export PDF មិនជោគជ័យ: " + err.message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) return (
     <div style={{
       padding: 40,
@@ -62,7 +91,7 @@ export default function InventoryHealthPage() {
       ⏳ កំពុងភ្ជាប់ Server... សូមរង់ចាំមួយភ្លែត
     </div>
   );
- 
+
   if (error) return (
     <div style={{
       padding: 40,
@@ -75,10 +104,10 @@ export default function InventoryHealthPage() {
       {error} — សូមពិនិត្យ Laravel log
     </div>
   );
- 
+
   return (
-    <div className={styles.page}>
- 
+    <div className={styles.page} ref={reportRef}>
+
       {/* Header */}
       <div className={styles.header}>
         <div>
@@ -97,9 +126,16 @@ export default function InventoryHealthPage() {
             <option value="last_week">Last Week</option>
             <option value="month">This Month</option>
           </select>
+          <button
+            className={styles.exportBtn}
+            onClick={handleExportPDF}
+            disabled={exporting}
+          >
+            {exporting ? "កំពុងបង្កើត..." : "↓ Export PDF"}
+          </button>
         </div>
       </div>
- 
+
       {/* Stat Cards */}
       <div className={styles.statsRow}>
         <StatCard
@@ -123,10 +159,10 @@ export default function InventoryHealthPage() {
           color="red"
         />
       </div>
- 
+
       {/* Mid Row */}
       <div className={styles.midRow}>
- 
+
         {/* Attendance Trends */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
@@ -146,7 +182,7 @@ export default function InventoryHealthPage() {
             />
           </div>
         </div>
- 
+
         {/* Today's Exceptions */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
@@ -181,12 +217,12 @@ export default function InventoryHealthPage() {
             )}
           </div>
         </div>
- 
+
       </div>
- 
+
       {/* Bottom Row */}
       <div className={styles.bottomRow}>
- 
+
         {/* Stock by Category */}
         <div className={styles.card}>
           <div className={styles.cardTitle} style={{ marginBottom: 14 }}>
@@ -215,7 +251,7 @@ export default function InventoryHealthPage() {
             )}
           </div>
         </div>
- 
+
         {/* Critical Reorder List */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
@@ -272,11 +308,8 @@ export default function InventoryHealthPage() {
             </tbody>
           </table>
         </div>
- 
+
       </div>
     </div>
   );
 }
- 
-
-
